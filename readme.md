@@ -148,6 +148,21 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 - easier to use by user feedback
 - power users can fairly easily use it for their own package building
 
+## Advanced usage
+
+I.e. installing a package that is not defined yet
+
+### Creating a package definition file
+
+- follow the package creation tutorial [http://spack.readthedocs.io/en/latest/tutorial_packaging.html](http://spack.readthedocs.io/en/latest/tutorial_packaging.html) if stuck.
+- create basic YAML definition file that needs to be further filled in
+ ```spack create <package url>```
+- edit the file and fill in what's needed
+```spack edit <package>```
+- find a package that is similar to what you're trying to install to get further ideas on what to do, based on the build specifics
+-- autoconf, cmake, make, ...
+
+
 esmf
 
 ## Plan:
@@ -167,9 +182,9 @@ esmf
  -- installing existing package version - DONE
  -- installing new version of an existing package (including github pull request)
 - things to decide/discuss in the future 
- -- python and R
+ -- python and R - Spack has separate package definitions for individual Python and R libraries
 - package files to create - WRF, Amber
-- webpage documentation for enabling power users to build their own codes
+- webpage documentation for enabling power users to build codes on their own
 
 
 ## Tidbits
