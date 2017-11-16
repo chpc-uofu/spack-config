@@ -109,10 +109,109 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ### Basic installation workflow
 ```spack list <package>``` - find if the package is known to Spack
+```spack compilers``` - list available compilers (pre-installed as defined in ```compilers.yaml``` file or installed with Spack)
 ```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
 ```spack install <package> <options>``` - install the package
 ```spack find -dl <package>``` - display installed packages (```-dl``` will print version details)
 
-Dependencies:
+#### Dependencies:
 ```%``` - compiler, e.g. ```%intel```
 ```@``` - version, e.b. ```%intel@2018.0.128```
+... more to be added
+
+#### Examples
+```spack install hpl %intel``` - install HPL with default version of Intel compiler and default BLAS (MKL) and MPI (Intel MPI).
+
+## Things to discuss at CHPC
+- install dir and local drive for building, module files location
+- Lmod integration (module use for the Spack generated modules)
+- consider allowing only one compiler (spack modules set CC, CXX, ...)
+- consider bash as shell for hpcapps
+- policy in locating and loading Python modules
+- platform specific settings/install tree - no need to specific sys branch for different architectures (x84, ppc64)
+
+### Spack vs. easybuild
+- spack has stronger dependency model (DAG), uninstall
+- easier to use by user feedback
+- power users can fairly easily use it for their own package building
+
+esmf
+
+## Plan:
+- go over the ANL config and test - DONE
+- test implementation in installdir - DONE
+- local customizations, such as installdir and local scratch - DONE
+ - ANL has /soft/spack - we can have /uufs/chpc.utah.edu/sys/spack
+- local preinstalled software - mainly - PART
+- prototype installdir structure, modules (module use for the spack built tree) - DONE
+- apps to try (unless there's an explicit need)
+ -- hpl - DONE
+ -- check difference between intel, intel-parallel-studio, intel-mpi -> use pre-installed intel, intel-mpi, no intel-parallel-studio as it puts everything in one module
+ -- when building look at how dependencies are being built (e.g. mpi, fftw)
+- check package files
+ -- lammps, matlab, pgi, namd, nwchem, espresso (QE)
+- describe workflow on github
+ -- installing existing package version - DONE
+ -- installing new version of an existing package (including github pull request)
+- things to decide/discuss in the future 
+ -- python and R
+- package files to create - WRF, Amber
+- webpage documentation for enabling power users to build their own codes
+
+
+## Tidbits
+
+Local package repos
+ var/spack/repos/builtin
+
+Tidbits
+ - use RPATH
+ - generate modulefiles
+ - - and ~ do the same thing - ~ may expand to user name in which case use - instead
+ - can use find through dependencies, flags, etc
+ - spack find -pe -- lists the location of the installed packages
+   -- can change the root location, but spack will maintain the tree structure
+ - make version dependencies
+   ^openmpi@1.4: - use version higher than, inclusive (python slices)
+   ^mpi@2 - spec constraint (MPI spec > 2.0)
+ - extensions - Python packages - 
+  -- they also have module files for each python package - may work better for us
+ - while installing, can pres "v" for verbose output
+
+
+- GPU - depend("cuda")
+
+spack build cache -h - what is in binary cache
+
+ - location of the packages to install
+ -- etc/spack/defaults/config.yaml - never edit - git versioned
+   -> $SPACK_ROOT - path to spack install that we're using
+  -> $SPACK_ROOT/etc/spack/config.yaml 
+  -> install_tree
+ - can edit config files, e.g. 
+    spack config edit compilers
+     -- that edits the user specific config 
+    spack config --scope defaults edit config
+     -- that edits global config
+ - compilers can be specified through modules in the config file - may be better for us
+ - use distro packages
+    zlib:
+    paths:
+      zlib@1.2.8%gcc@5.4.0 arch=linux-ubuntu16.04-x86_64: /usr
+    buildable: False
+  -> link version/arch to /usr and tell spack to never build it (even for different compiler)
+  -> probably want to set some to this
+  - limit # of threads to build package (default max cores)
+   - just use -j xx in the spack instal, or in config file
+   config:
+     build_jobs: 4
+ - in the config file use local mirror if it's available
+
+
+Creating package names
+ -- quick creation - will create basic YAML definition file that needs to be further filled in
+ ```spack create <package url>```
+ 
+
+
+
