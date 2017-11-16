@@ -12,13 +12,16 @@
 ### CHPC custom configuration (to be confirmed)
 
 ```/uufs/chpc.utah.edu/sys/spack``` - root directory for package installation
+
 ```/uufs/chpc.utah.edu/sys/modulefiles/spack``` - Lmod module files
+
 ```/scratch/local``` - local drive where the build is performed (= need to make sure to build on machine that has it)
 
 
 ### Package installation and setup
 
 Install from Github (may need to version in the future so may need to have own fork)
+
 ```git clone https://github.com/spack/spack.git```
 
 Basic setup (to be put to hpcapps .tcshrc)
@@ -55,11 +58,15 @@ Other preinstalled packages that have been included into Spack (list may grow in
 
 ### CHPC Lmod integration
 In our module shell init files, we also need to ```use``` the Spack Lmod module tree:
+
 ``` ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core```
 
 For compilers - each compiler also needs to load the compiler specific module files, e.g.:
+
 ```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/intel/2018.0.128```
+
 Now emulate this as:
+
 ```
 ml intel/18
 ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/intel/2018.0.128
@@ -109,14 +116,20 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ### Basic installation workflow
 ```spack list <package>``` - find if the package is known to Spack
+
 ```spack compilers``` - list available compilers (pre-installed as defined in ```compilers.yaml``` file or installed with Spack)
+
 ```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
+
 ```spack install <package> <options>``` - install the package
+
 ```spack find -dl <package>``` - display installed packages (```-dl``` will print version details)
 
 #### Dependencies:
 ```%``` - compiler, e.g. ```%intel```
+
 ```@``` - version, e.b. ```%intel@2018.0.128```
+
 ... more to be added
 
 #### Examples
