@@ -96,7 +96,7 @@ spack edit intel-mkl
 Check what dependencies is Spack going to get:
 ```
 spack spec hpl
-spack spec hpl %intel
+spack spec hpl%intel
 ```
 
 Test build the code (if the ```prefix``` is not correct, the build will crash here)
@@ -133,7 +133,16 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 ... more to be added
 
 #### Examples
-```spack install hpl %intel``` - install HPL with default version of Intel compiler and default BLAS (MKL) and MPI (Intel MPI).
+```spack install hpl%intel``` - install HPL with default version of Intel compiler and default BLAS (MKL) and MPI (Intel MPI).
+
+```spack install --keep-stage espresso@6.1.0 %intel@2018.0.128 -elpa +mpi +openmp ^intel-mkl threads=openmp``` - install Quantum Espresso with Intel compiler, MKL, Intel MPI (default) and threads
+
+#### Troubleshooting
+```spack -d <command>```  will print out more detailed information with stack trace of the error - one then can look in the Spack python code and potentially modify it (as hpcapps) to print function arguments that may hint on the problem
+
+```spack help -a``` - gives the most generic help
+
+``` spack python``` - runs Python with Spack module being loaded, so, one can run Spack functions, e.g. ```>>> print(spack.config.get_config('config'))```
 
 ## Things to discuss at CHPC
 - install dir and local drive for building, module files location
