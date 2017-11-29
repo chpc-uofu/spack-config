@@ -137,6 +137,14 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ```spack install --keep-stage espresso@6.1.0 %intel@2018.0.128 -elpa +mpi +openmp ^intel-mkl threads=openmp``` - install Quantum Espresso with Intel compiler, MKL, Intel MPI (default) and threads
 
+#### Modifying the spec file
+In general, be careful when editing the spec files so they don't break. In the future we will use our own branch of Spack to version control our changes and potentially create pull requests to Spack's main branch if we add new packages or do useful change to existing package spec.
+
+```spack edit <package>``` will open vi editor with the package's package.py spec file. E.g. ```spack edit hpl```.
+```env['F90']=spack_fc``` - adds environment variable F90 that point's to Spack's defined FC compiler, ```spack_fc```
+```env['FCFLAGS']='-g -O3 -ip'``` - adds explicitly defined environment variable
+
+
 #### Troubleshooting
 ```spack -d <command>```  will print out more detailed information with stack trace of the error - one then can look in the Spack python code and potentially modify it (as hpcapps) to print function arguments that may hint on the problem
 
