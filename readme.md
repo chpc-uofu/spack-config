@@ -203,6 +203,8 @@ esmf
 - package files to create - WRF, Amber
 - webpage documentation for enabling power users to build codes on their own
 - more preinstalled packages - Matlab, IDL
+- Python specifics
+ - make sure numpy, etc, are built with MKL - current py-numpy spec is confusing
 
 
 ## Tidbits
