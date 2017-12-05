@@ -202,6 +202,7 @@ esmf
  -- python and R - Spack has separate package definitions for individual Python and R libraries
 - package files to create - WRF, Amber
 - webpage documentation for enabling power users to build codes on their own
+- more preinstalled packages - Matlab, IDL
 
 
 ## Tidbits
