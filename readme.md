@@ -121,6 +121,8 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
 
+```spack env <package><options>``` - display build environment. TIP: make sure to have all variants listed w/o space otherwise the `env` command will want to run the spaced out variant as another command, e.g. `spack env espresso@6.1.0%intel@2018.0.128~elpa+mpi+openmp^intel-mkl`
+
 ```spack install <package> <options>``` - install the package
 
 ```spack find -dl <package>``` - display installed packages (```-dl``` will print version details)
@@ -179,8 +181,17 @@ I.e. installing a package that is not defined yet
 - find a package that is similar to what you're trying to install to get further ideas on what to do, based on the build specifics
 -- autoconf, cmake, make, ...
 
+### Debugging spack
 
-esmf
+I.e. figuring out where build or other errors come from
+
+1. Run Spack inside Python
+- source spack
+- get into Python with `spack python`
+- run Spack functions, e.g. `>>> print(spack.config.get_config('config'))` 
+
+2. Put temporary print statements into the Spack code
+
 
 ## Plan:
 - go over the ANL config and test - DONE
