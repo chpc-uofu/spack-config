@@ -148,7 +148,7 @@ In general, be careful when editing the spec files so they don't break. In the f
 
 #### Adding new version of an existing package
 
-First get the checksum with `spack checksum <package>`. If new version is not found, see what is the hierarchy of the versions in the URL specified in the `package.py`. This can be specified by `list_url` and `list_depth`, as e.g. in `postgresql` package. This is detailed in (http://spack.readthedocs.io/en/latest/packaging_guide.html#finding-new-versions)[http://spack.readthedocs.io/en/latest/packaging_guide.html#finding-new-versions]
+First get the checksum with `spack checksum <package>`. If new version is not found, see what is the hierarchy of the versions in the URL specified in the `package.py`. This can be specified by `list_url` and `list_depth`, as e.g. in `postgresql` package. This is detailed in [http://spack.readthedocs.io/en/latest/packaging_guide.html#finding-new-versions](http://spack.readthedocs.io/en/latest/packaging_guide.html#finding-new-versions)
 
 #### Troubleshooting
 ```spack -d <command>```  will print out more detailed information with stack trace of the error - one then can look in the Spack python code and potentially modify it (as hpcapps) to print function arguments that may hint on the problem
