@@ -1,5 +1,36 @@
 # Spack package manager at CHPC
 
+- [Spack package manager at CHPC](#spack-package-manager-at-chpc)
+  * [Basic information](#basic-information)
+  * [Installation and setup](#installation-and-setup)
+    + [CHPC custom configuration (to be confirmed)](#chpc-custom-configuration--to-be-confirmed-)
+    + [Package installation and setup](#package-installation-and-setup)
+    + [CHPC configuration](#chpc-configuration)
+      - [Compiler setup](#compiler-setup)
+    + [CHPC Lmod integration](#chpc-lmod-integration)
+      - [Configuration modification](#configuration-modification)
+      - [Code modification](#code-modification)
+      - [Spack generated module hierarchy layout](#spack-generated-module-hierarchy-layout)
+      - [Integration into existing Lmod](#integration-into-existing-lmod)
+    + [Adding already installed package (installed w/o spack)](#adding-already-installed-package--installed-w-o-spack-)
+  * [Basic use](#basic-use)
+    + [Source Spack](#source-spack)
+    + [Basic installation workflow](#basic-installation-workflow)
+      - [Dependencies:](#dependencies-)
+      - [Build a package with dependency built with a differen compiler:](#build-a-package-with-dependency-built-with-a-differen-compiler-)
+      - [External packages (not directly downloadable)](#external-packages--not-directly-downloadable-)
+      - [Examples](#examples)
+      - [Modifying the spec file](#modifying-the-spec-file)
+      - [Adding new version of an existing package](#adding-new-version-of-an-existing-package)
+      - [Troubleshooting](#troubleshooting)
+  * [Things to discuss at CHPC](#things-to-discuss-at-chpc)
+    + [Spack vs. easybuild](#spack-vs-easybuild)
+  * [Advanced usage](#advanced-usage)
+    + [Creating a package definition file](#creating-a-package-definition-file)
+    + [Debugging spack](#debugging-spack)
+  * [Plan:](#plan-)
+  * [Tidbits](#tidbits)
+
 ## Basic information
 
 - features overview - [http://spack.readthedocs.io/en/latest/features.html](http://spack.readthedocs.io/en/latest/features.html)
@@ -85,7 +116,7 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
     hierarchy:
       - mpi
 ```
-- use the [https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules](projections) to customize the modules hierarchy
+- use the [projections](https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules) to customize the modules hierarchy
 ```
     projections:
       all: '{name}/{version}'
