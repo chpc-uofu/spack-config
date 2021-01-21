@@ -125,7 +125,7 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
 
 #### Code modification
 
-Even with the use of projections, as of ver. 0.16, parts of the path are hard coded, so, we had to makea small change to ```[lib/spack/spack/modules/lmod.py](https://github.com/spack/spack/blob/develop/lib/spack/spack/modules/lmod.py)```. The original code builds the module file path at line 244 as:
+Even with the use of projections, as of ver. 0.16, parts of the path are hard coded, so, we had to make a small change to [lib/spack/spack/modules/lmod.py](https://github.com/spack/spack/blob/develop/lib/spack/spack/modules/lmod.py). The original code builds the module file path at line 244 as:
 ```
         fullname = os.path.join(
             self.arch_dirname,  # root for lmod files on this architecture
@@ -134,7 +134,7 @@ Even with the use of projections, as of ver. 0.16, parts of the path are hard co
         )   
 ```
 
-The ```hierarchy_name``` is what Spack determines based on the ```hierarchy``` option from ```modules.yaml```, and the self.use.name is what the projection builds, so for the ```^mpi``` projection definition, the paths are appended. For example, we end up with a path like this:
+The ```hierarchy_name``` is what Spack determines based on the ```hierarchy``` option from ```modules.yaml```, and the ```self.use.name``` is what the projection builds, so for the ```^mpi``` projection definition, the final path is a concatenation of the two . For example, we end up with a path like this:
 ```
 linux-centos7-x86_64/intel-mpi/2019.8.254-kvtpiwf/intel/19.0.5.281/MPI/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
 ```
@@ -172,6 +172,7 @@ For Compiler dependent packages packages:
 architecture/Compiler/compiler.name/compiler.version/name/version
 ```
 For MPI dependent packages:
+```
 architecture/Compiler/compiler.name/compiler.version/mpi.name/mpi.version/name/version
 ```
 
