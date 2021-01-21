@@ -125,7 +125,7 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
 
 #### Code modification
 
-Even with the use of projections, as of ver. 0.16, parts of the path are hard coded, so, we had to makea small change to ```lib/spack/spack/modules/lmod.py```. The original code builds the module file path as:
+Even with the use of projections, as of ver. 0.16, parts of the path are hard coded, so, we had to makea small change to ```[lib/spack/spack/modules/lmod.py](https://github.com/spack/spack/blob/develop/lib/spack/spack/modules/lmod.py)```. The original code builds the module file path at line 244 as:
 ```
         fullname = os.path.join(
             self.arch_dirname,  # root for lmod files on this architecture
@@ -134,18 +134,20 @@ Even with the use of projections, as of ver. 0.16, parts of the path are hard co
         )   
 ```
 
-The ```hierarchy_name``` is what Spack determines based on the ```hierarchy``` option from ```modules.yaml```, so, it conflicts with the ```^mpi``` definition of the projection. For example, we end up with a path like this:
+The ```hierarchy_name``` is what Spack determines based on the ```hierarchy``` option from ```modules.yaml```, and the self.use.name is what the projection builds, so for the ```^mpi``` projection definition, the paths are appended. For example, we end up with a path like this:
 ```
-linux-centos7-x86_64/intel-mpi/2019.8.254-kvtpiwf/intel/19.0.5.281/MPI/linux-centos7-nehalem/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
+linux-centos7-x86_64/intel-mpi/2019.8.254-kvtpiwf/intel/19.0.5.281/MPI/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
 ```
 while we want
 ```
 linux-centos7-x86_64/MPI/linux-centos7-nehalem/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
 ```
 
-Also, the Compiler hierarchy does not seem to be possible to be added via the projections, so, we can not add the ```Compiler``` to the hierarchy path. 
+Note also that the compiler/MPI hierarchy allows the module file to be unique without needing another specifier, like the hash, in the MPI/compiler hierarchy that Spack builds using the ```mpi``` hierarchy option.
 
-To fix these two issues, we modified the Spacks ```lmod.py``` roughly on line 240 as follows:
+Also, the Compiler hierarchy does not seem to be possible to be added via the projections, so, we can not add the ```Compiler``` string into the hierarchy path. 
+
+To fix these two issues, we modified the Spacks ```lmod.py``` on line 242 as follows:
 ```
         # MC in order to be able to modify the module path with projections, need to 
         # MC remove the hierarchy_name for MPI (hierarchy is done with the projection)
@@ -155,6 +157,8 @@ To fix these two issues, we modified the Spacks ```lmod.py``` roughly on line 24
         if "Core" not in parts and "MPI" not in self.use_name:
           hierarchy_name = "Compiler/" + hierarchy_name
 ```
+
+A more elegant way to fix this would be to modify the hierarchy_name in such a way that it would have the compiler/MPI hierarchy and have the ```Compiler``` and ```MPI``` path prefixes like the ```Core```, but, that would require some more reverse engineering of the code.
 
 #### Spack generated module hierarchy layout
 
