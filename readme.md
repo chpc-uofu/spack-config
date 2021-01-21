@@ -28,6 +28,7 @@ Basic setup (to be put to hpcapps .tcshrc)
 ```
 setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
 source $SPACK_ROOT/share/spack/setup-env.csh
+setenv PATH $SPACK_ROOT/bin:$PATH
 ```
 
 ### CHPC configuration
@@ -48,6 +49,13 @@ check with
 ```
 spack config get config
 ```
+
+#### Compiler setup
+
+Follow [https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration](https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration) to add compiler to your user config, and then change it in the global config at ```/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack``` as well.
+
+Since we have license info for Intel, PGI and Matlab in the ```/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/modules.yaml```, the license info does not need to be put in compilers.yaml. Also, RPATH seems to be added correctly without explicitly being in compilers.yaml.
+
 Compilers defined are the latest Intel (2018.0), PGI (17.10), stock gcc (4.8.5) and gcc(5.4.0). More can be added, or perhaps easier built with Spack.
 
 (go over config files and explain concretization preferences in ```packages.yaml```, as per [http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences](http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences))
@@ -57,25 +65,98 @@ Other preinstalled packages that have been included into Spack (list may grow in
 - Intel MKL
 
 ### CHPC Lmod integration
-In our module shell init files, we also need to ```use``` the Spack Lmod module tree:
+
+In order to use our Core - Compiler - MPI hierarchy, we had to modify both the configuration files, and do a small change in the Spack code. 
+
+#### Configuration modification
+
+To get the module names/versions to be consitent with CHPC namings, we had to add the following to ```modules.yaml```:
+- remove the hash from the module name:
+```
+    hash_length: 0
+```
+- specify that packages built with the system compiler are the Core packages (no compiler dependency):
+```
+    core_compilers:
+      - 'gcc@4.8.5'
+```
+- set the hierarchy to MPI:
+```
+    hierarchy:
+      - mpi
+```
+- use the [https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules](projections) to customize the modules hierarchy
+```
+    projections:
+      all: '{name}/{version}'
+      ^mpi: 'MPI/{compiler.name}/{compiler.version}/{^mpi.name}/{^mpi.version}/{name}/{version}'
+```
+
+#### Code modification
+
+Even with the use of projections, as of ver. 0.16, parts of the path are hard coded, so, we had to makea small change to ```lib/spack/spack/modules/lmod.py```. The original code builds the module file path as:
+```
+        fullname = os.path.join(
+            self.arch_dirname,  # root for lmod files on this architecture
+            hierarchy_name,  # relative path
+            '.'.join([self.use_name, self.extension])  # file name - use_name = projection
+        )   
+```
+
+The ```hierarchy_name``` is what Spack determines based on the ```hierarchy``` option from ```modules.yaml```, so, it conflicts with the ```^mpi``` definition of the projection. For example, we end up with a path like this:
+```
+linux-centos7-x86_64/intel-mpi/2019.8.254-kvtpiwf/intel/19.0.5.281/MPI/linux-centos7-nehalem/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
+```
+while we want
+```
+linux-centos7-x86_64/MPI/linux-centos7-nehalem/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
+```
+
+Also, the Compiler hierarchy does not seem to be possible to be added via the projections, so, we can not add the ```Compiler``` to the hierarchy path. 
+
+To fix these two issues, we modified the Spacks ```lmod.py``` roughly on line 240 as follows:
+```
+        # MC in order to be able to modify the module path with projections, need to 
+        # MC remove the hierarchy_name for MPI (hierarchy is done with the projection)
+        if "MPI" in self.use_name:
+          hierarchy_name = ""
+        # MC also add "Compiler" to the path for the Compiler packages
+        if "Core" not in parts and "MPI" not in self.use_name:
+          hierarchy_name = "Compiler/" + hierarchy_name
+```
+
+#### Spack generated module hierarchy layout
+
+The hierarchy layout is thus as follows:
+For Core packages:
+```
+architecture/Core/name/version
+```
+For Compiler dependent packages packages:
+```
+architecture/Compiler/compiler.name/compiler.version/name/version
+```
+For MPI dependent packages:
+architecture/Compiler/compiler.name/compiler.version/mpi.name/mpi.version/name/version
+```
+
+#### Integration into existing Lmod
+
+In our module shell init files, we need to ```use``` the Spack Lmod module tree:
 
 ``` ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core```
 
 For compilers - each compiler also needs to load the compiler specific module files, e.g.:
 
-```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/intel/2018.0.128```
+```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/intel/2021.1```
 
 Now emulate this as:
 
 ```
-ml intel/18
-ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/intel/2018.0.128
+ml intel/2021.1
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/intel/2021.1
 ```
-
-Since we are using Spack's Intel MPI package definition, the IMPI path is set up correctly when loading ```intel-mpi``` module from the Spack module tree.
-
-For gcc, things are a bit different. gcc compiler modules equal to ```Core```, which contains intel-mpi, which sets the module path to IMPI.
-(had to fix intel-mpi module as it is for some reason doing ml() and module())
+Same thing for the MPIs. This will be added in the near future.
 
 ### Adding already installed package (installed w/o spack)
 
@@ -131,6 +212,13 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 ```%``` - compiler, e.g. ```%intel```
 
 ```@``` - version, e.b. ```%intel@2018.0.128```
+
+#### Build a package with dependency built with a differen compiler:
+```spack install openmpi%pgi ^libpciaccess%gcc```
+
+#### External packages (not directly downloadable)
+
+Use (mirror)[https://spack.readthedocs.io/en/latest/basic_usage.html#non-downloadable-tarballs].
 
 ... more to be added
 
