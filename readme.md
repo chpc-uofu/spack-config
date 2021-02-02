@@ -183,6 +183,7 @@ Again, this is a fairly ugly hack and it remains to be seen if it breaks somethi
 #### Spack generated module hierarchy layout
 
 The hierarchy layout is thus as follows:
+
 For Core packages:
 ```
 architecture/Core/name/version
