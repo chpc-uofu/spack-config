@@ -1,4 +1,3 @@
-# Spack package manager at CHPC
 
 - [Spack package manager at CHPC](#spack-package-manager-at-chpc)
   * [Basic information](#basic-information)
@@ -31,6 +30,8 @@
   * [Plan:](#plan-)
   * [Tidbits](#tidbits)
 
+# Spack package manager at CHPC
+
 ## Basic information
 
 - features overview - [http://spack.readthedocs.io/en/latest/features.html](http://spack.readthedocs.io/en/latest/features.html)
@@ -60,6 +61,7 @@ Basic setup (to be put to hpcapps .tcshrc)
 setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
 source $SPACK_ROOT/share/spack/setup-env.csh
 setenv PATH $SPACK_ROOT/bin:$PATH
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core
 ```
 
 ### CHPC configuration
@@ -159,6 +161,22 @@ To fix these two issues, we modified the Spacks ```lmod.py``` on line 242 as fol
 ```
 
 A more elegant way to fix this would be to modify the hierarchy_name in such a way that it would have the compiler/MPI hierarchy and have the ```Compiler``` and ```MPI``` path prefixes like the ```Core```, but, that would require some more reverse engineering of the code.
+
+One more fix is required to fix the ```MODULEPATH``` environment variable modification in the MPI module file. This is done in function ```unlocked_paths()``` at line 411 of file ```lmod.py```, by replacing:
+```
+        return [os.path.join(*parts) for parts in layout.unlocked_paths[None]]
+```
+with
+```
+          parts=[layout.unlocked_paths[None][0][0],"MPI",layout.unlocked_paths[None][0][2],layout.unlocked_paths[None][0][1][0:-8]]
+          print("CHPC custom path:",[os.path.join(*parts)])
+          return [os.path.join(*parts)]
+        else:
+          return [os.path.join(*parts) for parts in layout.unlocked_paths[None]]
+
+```
+
+Again, this is a fairly ugly hack and it remains to be seen if it breaks something somewhere.
 
 #### Spack generated module hierarchy layout
 
