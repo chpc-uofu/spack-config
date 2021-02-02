@@ -192,7 +192,7 @@ architecture/Compiler/compiler.name/compiler.version/name/version
 ```
 For MPI dependent packages:
 ```
-architecture/Compiler/compiler.name/compiler.version/mpi.name/mpi.version/name/version
+architecture/MPI/compiler.name/compiler.version/mpi.name/mpi.version/name/version
 ```
 
 #### Integration into existing Lmod
@@ -211,7 +211,7 @@ Now emulate this as:
 ml intel/2021.1
 ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/intel/2021.1
 ```
-Same thing for the MPIs. This will be added in the near future.
+Same thing for the manually imported MPIs. MPIs installed with Spack should do this automatically with the code hack described above.
 
 ### Adding already installed package (installed w/o spack)
 
