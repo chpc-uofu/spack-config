@@ -176,6 +176,7 @@ with
           return [os.path.join(*parts) for parts in layout.unlocked_paths[None]]
 
 ```
+This changes the Spack generated path (which again ignores the projection) from e.g. ```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/mpich/3.3.2-jtr2h2o/intel/19.0.5.281``` to ```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/MPI/intel/19.0.5.281/mpich/3.3.2``` by flipping the last two items in the list and removing the hash from the MPI module number.
 
 Again, this is a fairly ugly hack and it remains to be seen if it breaks something somewhere.
 
