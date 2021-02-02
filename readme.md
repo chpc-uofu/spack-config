@@ -168,6 +168,7 @@ One more fix is required to fix the ```MODULEPATH``` environment variable modifi
 ```
 with
 ```
+        if layout.unlocked_paths[None]:
           parts=[layout.unlocked_paths[None][0][0],"MPI",layout.unlocked_paths[None][0][2],layout.unlocked_paths[None][0][1][0:-8]]
           print("CHPC custom path:",[os.path.join(*parts)])
           return [os.path.join(*parts)]
