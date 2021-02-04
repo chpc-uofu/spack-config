@@ -215,12 +215,14 @@ OS-OSVer/MPI/architecture/compiler.name/compiler.version/mpi.name/mpi.version/na
 
 In our module shell init files, we need to ```use``` the Spack Lmod module tree:
 
-``` ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem```
+``` 
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
+```
 and on Kingspeak and Lonepeak, also add the CPU architecture specific target, e.g for NP:
-``` ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-skylake_avx512```
+
+```ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-skylake_avx512```
 
 For compilers - each compiler also needs to load the compiler specific module files, e.g.:
-
 ```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/intel/2021.1```
 and also add cluster specific Compiler modules, e.g.:
 ```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-skylake_avx512/intel/2021.1```
@@ -232,7 +234,18 @@ Now emulate this as:
 ml intel/2021.1
 ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/intel/2021.1
 ```
+or
+```
+ml gcc/9.2.0
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/9.2.0
+```
+
 Same thing for the manually imported MPIs. MPIs installed with Spack should do this automatically with the code hack described above, for that particular CPU architecture (generic Nehalem, Sandybridge (KP) or Skylake (NP)).
+
+##### Caveat
+
+```module spider``` will not find the Spack built module in the hierarchy if the Compiler and Core module paths are not in the MODULEPATH. But Lmod should be capable of having multiple entries in MODULEPATH-> test if spider cache will make them to be found, https://lmod.readthedocs.io/en/latest/130_spider_cache.html#how-to-test-the-spider-cache-generation-and-usage. 
+-> also test if can have different spider caches for different CPU architectures - https://lmod.readthedocs.io/en/latest/130_spider_cache.html#scenario-2-different-computers-owning-different-module-trees
 
 ### Adding already installed package (installed w/o spack)
 
