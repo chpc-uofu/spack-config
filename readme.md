@@ -151,13 +151,27 @@ Also, the Compiler hierarchy does not seem to be possible to be added via the pr
 
 To fix these two issues, we modified the Spacks ```lmod.py``` on line 242 as follows:
 ```
-        # MC in order to be able to modify the module path with projections, need to 
         # MC remove the hierarchy_name for MPI (hierarchy is done with the projection)
         if "MPI" in self.use_name:
           hierarchy_name = ""
         # MC also add "Compiler" to the path for the Compiler packages
         if "Core" not in parts and "MPI" not in self.use_name:
-          hierarchy_name = "Compiler/" + hierarchy_name
+          # first redo use_name to move the arch forward
+          split_use_name = self.use_name.split("/")
+          new_use_name = split_use_name[1]+"/"+split_use_name[2]
+          hierarchy_name = "Compiler/" + split_use_name[0] + "/" + hierarchy_name
+          fullname = os.path.join(
+              self.arch_dirname,  # root for lmod files
+              hierarchy_name,  # relative path
+              '.'.join([new_use_name, self.extension])  # file name - use_name = projection
+          )                                             # can't modify self.use_name so need a new var
+        else:
+          # Compute the absolute path
+          fullname = os.path.join(
+              self.arch_dirname,  # root for lmod files
+              hierarchy_name,  # relative path
+              '.'.join([self.use_name, self.extension])  # file name - use_name = projection
+          )
 ```
 
 A more elegant way to fix this would be to modify the hierarchy_name in such a way that it would have the compiler/MPI hierarchy and have the ```Compiler``` and ```MPI``` path prefixes like the ```Core```, but, that would require some more reverse engineering of the code.
@@ -169,7 +183,7 @@ One more fix is required to fix the ```MODULEPATH``` environment variable modifi
 with
 ```
         if layout.unlocked_paths[None]:
-          parts=[layout.unlocked_paths[None][0][0],"MPI",layout.unlocked_paths[None][0][2],layout.unlocked_paths[None][0][1][0:-8]]
+          parts=[layout.unlocked_paths[None][0][0],"MPI",str(self.spec.architecture),layout.unlocked_paths[None][0][2],layout.unlocked_paths[None][0][1][0:-8]]
           print("CHPC custom path:",[os.path.join(*parts)])
           return [os.path.join(*parts)]
         else:
@@ -186,34 +200,39 @@ The hierarchy layout is thus as follows:
 
 For Core packages:
 ```
-architecture/Core/name/version
+OS-OSVer/Core/architecture/name/version
 ```
 For Compiler dependent packages packages:
 ```
-architecture/Compiler/compiler.name/compiler.version/name/version
+OS-OSVer/Compiler/architecture/compiler.name/compiler.version/name/version
 ```
 For MPI dependent packages:
 ```
-architecture/MPI/compiler.name/compiler.version/mpi.name/mpi.version/name/version
+OS-OSVer/MPI/architecture/compiler.name/compiler.version/mpi.name/mpi.version/name/version
 ```
 
 #### Integration into existing Lmod
 
 In our module shell init files, we need to ```use``` the Spack Lmod module tree:
 
-``` ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core```
+``` ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem```
+and on Kingspeak and Lonepeak, also add the CPU architecture specific target, e.g for NP:
+``` ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-skylake_avx512```
 
 For compilers - each compiler also needs to load the compiler specific module files, e.g.:
 
-```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/intel/2021.1```
+```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/intel/2021.1```
+and also add cluster specific Compiler modules, e.g.:
+```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-skylake_avx512/intel/2021.1```
+
 
 Now emulate this as:
 
 ```
 ml intel/2021.1
-ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/intel/2021.1
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/intel/2021.1
 ```
-Same thing for the manually imported MPIs. MPIs installed with Spack should do this automatically with the code hack described above.
+Same thing for the manually imported MPIs. MPIs installed with Spack should do this automatically with the code hack described above, for that particular CPU architecture (generic Nehalem, Sandybridge (KP) or Skylake (NP)).
 
 ### Adding already installed package (installed w/o spack)
 
