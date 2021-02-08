@@ -61,8 +61,14 @@ Basic setup (to be put to hpcapps .tcshrc)
 setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
 source $SPACK_ROOT/share/spack/setup-env.csh
 setenv PATH $SPACK_ROOT/bin:$PATH
-ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/$ARCH
 ```
+
+where ARCH depends on the machine where one logs in, in particular
+- lonepeak - linux-centos7-nehalem (the default/LCD for all CHPC machines)
+- kingspeak - linux-centos7-sandybridge
+- notchpeak - linux-centos7-skylake_avx512
+
 
 ### CHPC configuration
 
@@ -293,7 +299,7 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ```spack env <package><options>``` - display build environment. TIP: make sure to have all variants listed w/o space otherwise the `env` command will want to run the spaced out variant as another command, e.g. `spack env espresso@6.1.0%intel@2018.0.128~elpa+mpi+openmp^intel-mkl`
 
-```spack install <package> <options>``` - install the package
+```spack install <package> <options>``` - install the package. NOTE - by default all CPU cores are used so on interactive nodes, use the ```-j N``` option to limit number of parallel build processes.
 
 ```spack find -dl <package>``` - display installed packages (```-dl``` will print version details)
 
@@ -302,7 +308,7 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ```@``` - version, e.b. ```%intel@2018.0.128```
 
-#### Build a package with dependency built with a differen compiler:
+#### Build a package with dependency built with a different compiler:
 ```spack install openmpi%pgi ^libpciaccess%gcc```
 
 #### External packages (not directly downloadable)
@@ -334,6 +340,12 @@ First get the checksum with `spack checksum <package>`. If new version is not fo
 
 ``` spack python``` - runs Python with Spack module being loaded, so, one can run Spack functions, e.g. ```>>> print(spack.config.get_config('config'))```
 
+#### Caveats
+
+- older versions of the packages may have trouble building with the default (newer) versions of dependencies. Unless older version is required, build the latest version.
+
+- sometimes dependency builds fail. If this happens, try to build the dependency independently.
+
 ## Things to discuss at CHPC
 - install dir and local drive for building, module files location
 - Lmod integration (module use for the Spack generated modules)
@@ -341,6 +353,7 @@ First get the checksum with `spack checksum <package>`. If new version is not fo
 - consider bash as shell for hpcapps
 - policy in locating and loading Python modules
 - platform specific settings/install tree - no need to specific sys branch for different architectures (x84, ppc64)
+
 
 ### Spack vs. easybuild
 - spack has stronger dependency model (DAG), uninstall
