@@ -65,9 +65,9 @@ ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/$ARCH
 ```
 
 where ARCH depends on the machine where one logs in, in particular
-- lonepeak - linux-centos7-nehalem (the default/LCD for all CHPC machines)
-- kingspeak - linux-centos7-sandybridge
-- notchpeak - linux-centos7-skylake_avx512
+- lonepeak - ```linux-centos7-nehalem``` (the default/LCD for all CHPC machines)
+- kingspeak - ```linux-centos7-sandybridge```
+- notchpeak - ```linux-centos7-skylake_avx512```, ```zen```, or ```zen2``` (for AMD nodes)
 
 
 ### CHPC configuration
@@ -114,6 +114,12 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
 ```
     hash_length: 0
 ```
+- create modules only for explicitly installed packages (with ```spack install package```), and whitelist the MPIs (currently just Intel MPI):
+```
+    blacklist_implicits: true
+    whitelist:
+      - intel-mpi
+```
 - specify that packages built with the system compiler are the Core packages (no compiler dependency):
 ```
     core_compilers:
@@ -124,11 +130,20 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
     hierarchy:
       - mpi
 ```
-- use the [projections](https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules) to customize the modules hierarchy
+- use the [projections](https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules) to customize the modules hierarchy. Also, add suffix ```gpu``` to the module name built for GPU (currently just CUDA):
 ```
     projections:
-      all: '{name}/{version}'
-      ^mpi: 'MPI/{compiler.name}/{compiler.version}/{^mpi.name}/{^mpi.version}/{name}/{version}'
+      all: '{architecture}/{name}/{version}'
+      ^mpi^cuda: 'MPI/{architecture}/{compiler.name}/{compiler.version}/{^mpi.name}/{^mpi.version}/{name}/{version}-gpu'
+      ^mpi: 'MPI/{architecture}/{compiler.name}/{compiler.version}/{^mpi.name}/{^mpi.version}/{name}/{version}'
+      ^cuda: '{architecture}/{name}/{version}-gpu'
+```
+- add ```PACKAGE_ROOT``` environment variable:
+```
+    all:
+      environment:
+        set:
+          '{name}_ROOT': '{prefix}'
 ```
 
 #### Code modification
@@ -189,7 +204,11 @@ One more fix is required to fix the ```MODULEPATH``` environment variable modifi
 with
 ```
         if layout.unlocked_paths[None]:
-          parts=[layout.unlocked_paths[None][0][0],"MPI",str(self.spec.architecture),layout.unlocked_paths[None][0][2],layout.unlocked_paths[None][0][1][0:-8]]
+          if "mpi" in layout.unlocked_paths[None][0][1]:
+            parts=[layout.unlocked_paths[None][0][0],"MPI",str(self.spec.architecture),layout.unlocked_paths[None][0][2],layout.unlocked_paths[None][0][1][0:-8]]
+          # and this is for Compilers
+          else:
+            parts=[layout.unlocked_paths[None][0][0],"Compiler",str(self.spec.architecture),layout.unlocked_paths[None][0][1]]
           print("CHPC custom path:",[os.path.join(*parts)])
           return [os.path.join(*parts)]
         else:
@@ -342,7 +361,7 @@ First get the checksum with `spack checksum <package>`. If new version is not fo
 
 #### Caveats
 
-- older versions of the packages may have trouble building with the default (newer) versions of dependencies. Unless older version is required, build the latest version.
+- older versions of the packages may have trouble building with the default (newer) versions of dependencies. Unless older version is required, build the latest version. Spack developers recommend using older compiler versions (e.g. as of Feb 2021, gcc 8 rather than 9 or 10).
 
 - sometimes dependency builds fail. If this happens, try to build the dependency independently.
 
