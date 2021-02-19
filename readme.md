@@ -130,7 +130,7 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
     hierarchy:
       - mpi
 ```
-- use the [projections](https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules) to customize the modules hierarchy. Also, add suffix ```gpu``` to the module name built for GPU (currently just CUDA):
+- use the [projections](https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules) to customize the modules hierarchy. Also, add suffix ```gpu``` to the module name built for GPU (currently just CUDA). Note that the ```all``` is always evaluated and the rest of the projections have priority top-down, that is, in our case, if we have a CUDA package built with MPI, the ```^mpi^cuda``` takes precedence over the ```^cuda```:
 ```
     projections:
       all: '{architecture}/{name}/{version}'
