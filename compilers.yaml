@@ -1,1 +1,118 @@
-/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/compilers.yaml
+compilers:
+- compiler:
+    environment: {}
+    extra_rpaths: []
+    flags: {}
+    modules: []
+    operating_system: centos7
+    paths:
+      cc: /usr/bin/gcc
+      cxx: /usr/bin/g++
+      f77: /usr/bin/gfortran
+      fc: /usr/bin/gfortran
+    spec: gcc@4.8.5
+    target: x86_64
+- compiler:
+    spec: gcc@4.4.7
+    paths:
+      cc: /usr/bin/gcc44
+      cxx: /usr/bin/g++44
+      f77:
+      fc:
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
+- compiler:
+    spec: intel@19.0.5.281
+    paths:
+      cc: /uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2019.5.281/linux/bin/intel64/icc
+      cxx: /uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2019.5.281/linux/bin/intel64/icpc
+      f77: /uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2019.5.281/linux/bin/intel64/ifort
+      fc: /uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2019.5.281/linux/bin/intel64/ifort
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
+- compiler:
+    spec: intel@2021.1
+    paths:
+      cc: /uufs/chpc.utah.edu/sys/installdir/intel/2021.1.0.2659/compiler/2021.1.1/linux/bin/intel64/icc
+      cxx: /uufs/chpc.utah.edu/sys/installdir/intel/2021.1.0.2659/compiler/2021.1.1/linux/bin/intel64/icpc
+      f77: /uufs/chpc.utah.edu/sys/installdir/intel/2021.1.0.2659/compiler/2021.1.1/linux/bin/intel64/ifort
+      fc: /uufs/chpc.utah.edu/sys/installdir/intel/2021.1.0.2659/compiler/2021.1.1/linux/bin/intel64/ifort
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
+- compiler:
+    spec: pgi@19.9
+    paths:
+      cc: /uufs/chpc.utah.edu/sys/installdir/pgi/19.9/linux86-64/19.9/bin/pgcc
+      cxx: /uufs/chpc.utah.edu/sys/installdir/pgi/19.9/linux86-64/19.9/bin/pgc++
+      f77: /uufs/chpc.utah.edu/sys/installdir/pgi/19.9/linux86-64/19.9/bin/pgfortran
+      fc: /uufs/chpc.utah.edu/sys/installdir/pgi/19.9/linux86-64/19.9/bin/pgfortran
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
+- compiler:
+    spec: nvhpc@20.11
+    paths:
+      cc: /uufs/chpc.utah.edu/sys/installdir/nvidia/Linux_x86_64/20.11/compilers/bin/nvc
+      cxx: /uufs/chpc.utah.edu/sys/installdir/nvidia/Linux_x86_64/20.11/compilers/bin/nvc++
+      f77: /uufs/chpc.utah.edu/sys/installdir/nvidia/Linux_x86_64/20.11/compilers/bin/nvfortran
+      fc: /uufs/chpc.utah.edu/sys/installdir/nvidia/Linux_x86_64/20.11/compilers/bin/nvfortran
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
+- compiler:
+    spec: gcc@10.2.0
+    paths:
+      cc: /uufs/chpc.utah.edu/sys/installdir/gcc/10.2.0/bin/gcc
+      cxx: /uufs/chpc.utah.edu/sys/installdir/gcc/10.2.0/bin/g++
+      f77: /uufs/chpc.utah.edu/sys/installdir/gcc/10.2.0/bin/gfortran
+      fc: /uufs/chpc.utah.edu/sys/installdir/gcc/10.2.0/bin/gfortran
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
+- compiler:
+    spec: gcc@9.2.0
+    paths:
+      cc: /uufs/chpc.utah.edu/sys/installdir/gcc/9.2.0/bin/gcc
+      cxx: /uufs/chpc.utah.edu/sys/installdir/gcc/9.2.0/bin/g++
+      f77: /uufs/chpc.utah.edu/sys/installdir/gcc/9.2.0/bin/gfortran
+      fc: /uufs/chpc.utah.edu/sys/installdir/gcc/9.2.0/bin/gfortran
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
+- compiler:
+    spec: gcc@8.3.0
+    paths:
+      cc: /uufs/chpc.utah.edu/sys/installdir/gcc/8.3.0/bin/gcc
+      cxx: /uufs/chpc.utah.edu/sys/installdir/gcc/8.3.0/bin/g++
+      f77: /uufs/chpc.utah.edu/sys/installdir/gcc/8.3.0/bin/gfortran
+      fc: /uufs/chpc.utah.edu/sys/installdir/gcc/8.3.0/bin/gfortran
+    flags: {}
+    operating_system: centos7
+    target: x86_64
+    modules: []
+    environment: {}
+    extra_rpaths: []
