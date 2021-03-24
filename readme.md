@@ -61,11 +61,15 @@ Basic setup (to be put to hpcapps .tcshrc)
 setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
 source $SPACK_ROOT/share/spack/setup-env.csh
 setenv PATH $SPACK_ROOT/bin:$PATH
-ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/$ARCH
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
 ```
+The last line adds to Lmod modules Spack built programs for the default (lowest common denominator) CPU architecture (lonepeak).
 
-where ARCH depends on the machine where one logs in, in particular
-- lonepeak - ```linux-centos7-nehalem``` (the default/LCD for all CHPC machines)
+For newer CPU architecture specific builds, also load the following:
+```
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/$CHPC_ARCH
+```
+where CHPC_ARCH depends on the machine where one logs in, in particular
 - kingspeak - ```linux-centos7-sandybridge```
 - notchpeak - ```linux-centos7-skylake_avx512```, ```zen```, or ```zen2``` (for AMD nodes)
 
@@ -219,6 +223,36 @@ This changes the Spack generated path (which again ignores the projection) from 
 
 Again, this is a fairly ugly hack and it remains to be seen if it breaks something somewhere.
 
+##### ```spack module lmod loads``` modification
+
+```spack module lmod loads --dependencies``` can be used to produce a list of ```module load``` commands for dependencies of a given package. This is especially useful to load Python modules stack. 
+
+Spack does not seem to honor the modules hierarchy in the ```module load modulename``` output of this command, e.g., we get something like this:
+```
+ml gcc/8.3.0
+spack module lmod loads --dependencies py-mpi4py
+filename: /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/8.3.0/intel-mpi/2019.8.254.lua
+...
+filename: /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/MPI/linux-centos7-nehalem/gcc/8.3.0/intel-mpi/2019.8.254/py-mpi4py/3.0.3.lua
+# intel-mpi@2019.8.254%gcc@8.3.0 arch=linux-centos7-nehalem
+module load linux-centos7-nehalem/intel-mpi/2019.8.254
+...
+# py-mpi4py@3.0.3%gcc@8.3.0 arch=linux-centos7-nehalem
+module load MPI/linux-centos7-nehalem/gcc/8.3.0/intel-mpi/2019.8.254/py-mpi4py/3.0.3
+```
+The ```filename``` is corrected by the above modifications, but, the name of the module, used to load it, still has the old, incorrect, name. We modify this in ```/uufs/chpc.utah.edu/sys/installdir/spack/0.16.1/lib/spack/spack/modules``` at line 380 by replacing
+```
+            return writer.layout.use_name
+```
+with
+```
+            lastslash = writer.layout.use_name.rfind("/")
+            #MC in hierarchical modules, should strip use_name till the 2nd / from the back
+            return writer.layout.use_name[writer.layout.use_name.rfind("/",0,lastslash-1)+1:]
+```
+
+
+
 #### Spack generated module hierarchy layout
 
 The hierarchy layout is thus as follows:
@@ -363,7 +397,16 @@ First get the checksum with `spack checksum <package>`. If new version is not fo
 
 - older versions of the packages may have trouble building with the default (newer) versions of dependencies. Unless older version is required, build the latest version. Spack developers recommend using older compiler versions (e.g. as of Feb 2021, gcc 8 rather than 9 or 10).
 
-- sometimes dependency builds fail. If this happens, try to build the dependency independently.
+- sometimes dependency builds fail. If this happens, try to build the dependency independently. First run ```spack spec``` on the package you want to build, and find the full spec of the failed package. Then try to ```spack install``` this failed package with that full spec. E.g., for ```py-spyder```, built as ```spack install -j2 py-spyder%gcc@8.3.0^cmake@3.18.4^py-ipython@7.3.0^cairo+ft arch=nehalem```, we get ```qt``` build failure. The ```qt``` build specs as ```py-spyder``` requires are ```spack -C ~/spack-mcuma install qt@5.14.2%gcc@8.3.0~dbus~debug~examples~framework~gtk+opengl~phonon+shared+sql+ssl+tools+webkit freetype=spack patches=7f34d48d2faaa108dc3fcc47187af1ccd1d37ee0f931b42597b820f03a99864c arch=linux-centos7-nehalem```.
+
+```qt``` is a good example of troubleshooting further build failure - the build fails as it is set above. Looking at the error message in the build log file, which is saved during build failures, and which states that Python 2 is required. This is confirmed by web search, and, noting by ```spack edit qt``` that Python is required by qt: ```depends_on("python", when='@5.7.0:', type='build')```. The trouble is that some dependencies (e.g. ```glib```) require Python 3 to build and/or run. Therefore need to go over the ```spack spec``` output to see what these packages are, and see what are the highest versions that dont have Python dependency. Then put these versions as explicit dependencies, e.g.:
+```
+spack -C ~/spack-mcuma spec qt@5.14.2%gcc@8.3.0~dbus~debug~examples~framework~gtk~opengl~phonon+shared+sql+ssl+tools+webkit freetype=spack patches=7f34d48d2faaa108dc3fcc47187af1ccd1d37ee0f931b42597b820f03a99864c arch=linux-centos7-nehalem ^cmake@3.18.4 ^glib@2.53.1 ^icu4c@60.3 
+```
+
+- be careful about rebuilding the failed package with added specs, like compiler flags (```ldflags```, .etc). Spack will try to rebuild all the dependencies
+
+- sometimes during repeated build troubleshooting multiple builds of a package may be created which will conflict when e.g. generate module files. I usually keep only one build, and remove others. First check what is installed, e.g. ```spack find -cfdvl qt```. Then uninstall the unwanted ones through a hash, e.g. ```spack uninstall /sp26csq```. If there are dependents on this package, Spack will print a warning. This warning usually indicates that this version is the one that you want to keep.
 
 ## Things to discuss at CHPC
 - install dir and local drive for building, module files location
@@ -483,6 +526,39 @@ Creating package names
  -- quick creation - will create basic YAML definition file that needs to be further filled in
  ```spack create <package url>```
  
+## Update instructions
+
+- wget the version you want in ```/uufs/chpc.utah.edu/sys/installdir/spack/``` and move to the right version
+```
+wget https://github.com/spack/spack/releases/download/v0.16.1/spack-0.16.1.tar.gz
+tar xfz spack-0.16.1.tar.gz
+mv spack-0.16.1 0.16.1
+cd 0.16.1
+```
+
+- copy config files from the previous version
+```
+cp -r /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/* etc/spack
+```
+
+- bring in the changes of the Lmod module files generation
+```
+cd /uufs/chpc.utah.edu/sys/installdir/spack/0.16.1
+vim -d lib/spack/spack/modules/lmod.py ../0.16.0/lib/spack/spack/modules
+```
 
 
-
+- by default Spack includes path to all its lmod modules in the setup-env.csh - comment that out:
+```/uufs/chpc.utah.edu/sys/installdir/spack/0.16.1/share/spack/setup-env.csh```
+```
+# Set up module search paths in the user environment
+# MC comment out TCL path being added to MODULEPATH
+#set tcl_roots = `echo $_sp_tcl_roots:q | sed 's/:/ /g'`
+#set compatible_sys_types = `echo $_sp_compatible_sys_types:q | sed 's/:/ /g'`
+#foreach tcl_root ($tcl_roots:q)
+#    foreach systype ($compatible_sys_types:q)
+#        _spack_pathadd MODULEPATH "$tcl_root/$systype"
+#    end
+#end
+```
+Similar will need to be done for the other shell init scripts, e.g. ```setup-env.sh```.
