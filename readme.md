@@ -1,7 +1,7 @@
 
 - [Spack package manager at CHPC](#spack-package-manager-at-chpc)
   * [Basic information](#basic-information)
-  * [Installation and setup](#installation-and-setup)
+  * [Spack nstallation and setup](#installation-and-setup)
     + [CHPC custom configuration (to be confirmed)](#chpc-custom-configuration--to-be-confirmed-)
     + [Package installation and setup](#package-installation-and-setup)
     + [CHPC configuration](#chpc-configuration)
@@ -39,7 +39,7 @@
 - documentation - [http://spack.readthedocs.io/en/latest/](http://spack.readthedocs.io/en/latest/)
 - tutorial (very useful for learning both basic and more advanced functionality) - [http://spack.readthedocs.io/en/latest/tutorial.html](http://spack.readthedocs.io/en/latest/tutorial.html)
 
-## Installation and setup
+## Spack installation and setup
 
 ### CHPC custom configuration (to be confirmed)
 
@@ -61,6 +61,13 @@ Basic setup (to be put to hpcapps .tcshrc)
 setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
 source $SPACK_ROOT/share/spack/setup-env.csh
 setenv PATH $SPACK_ROOT/bin:$PATH
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
+```
+for bash:
+```
+export SPACK_ROOT=/uufs/chpc.utah.edu/sys/installdir/spack/spack
+source $SPACK_ROOT/share/spack/setup-env.sh
+export PATH=$SPACK_ROOT/bin:$PATH
 ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
 ```
 The last line adds to Lmod modules Spack built programs for the default (lowest common denominator) CPU architecture (lonepeak).
@@ -172,9 +179,9 @@ linux-centos7-x86_64/MPI/linux-centos7-nehalem/intel/19.0.5.281/intel-mpi/2019.8
 
 Note also that the compiler/MPI hierarchy allows the module file to be unique without needing another specifier, like the hash, in the MPI/compiler hierarchy that Spack builds using the ```mpi``` hierarchy option.
 
-Also, the Compiler hierarchy does not seem to be possible to be added via the projections, so, we can not add the ```Compiler``` string into the hierarchy path. 
+Also, the Compiler hierarchy does not seem to be possible to be added via the projections, so, we can not add the `Compiler` string into the hierarchy path. 
 
-To fix these two issues, we modified the Spacks ```lmod.py``` on line 242 as follows:
+To fix these two issues, we modified the Spacks `lmod.py` on line 242 as follows:
 ```
         # MC remove the hierarchy_name for MPI (hierarchy is done with the projection)
         if "MPI" in self.use_name:
@@ -201,7 +208,7 @@ To fix these two issues, we modified the Spacks ```lmod.py``` on line 242 as fol
 
 A more elegant way to fix this would be to modify the hierarchy_name in such a way that it would have the compiler/MPI hierarchy and have the ```Compiler``` and ```MPI``` path prefixes like the ```Core```, but, that would require some more reverse engineering of the code.
 
-One more fix is required to fix the ```MODULEPATH``` environment variable modification in the MPI module file. This is done in function ```unlocked_paths()``` at line 411 of file ```lmod.py```, by replacing:
+One more fix is required to fix the `MODULEPATH` environment variable modification in the MPI module file. This is done in function ```unlocked_paths()``` at line 411 of file ```lmod.py```, by replacing:
 ```
         return [os.path.join(*parts) for parts in layout.unlocked_paths[None]]
 ```
@@ -277,7 +284,7 @@ In our module shell init files, we need to ```use``` the Spack Lmod module tree:
 ``` 
 ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
 ```
-and on Kingspeak and Lonepeak, also add the CPU architecture specific target, e.g for NP:
+and on Kingspeak and Notchpeak, also add the CPU architecture specific target, e.g for NP Intel nodes:
 
 ```ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-skylake_avx512```
 
@@ -295,8 +302,8 @@ ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/l
 ```
 or
 ```
-ml gcc/9.2.0
-ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/9.2.0
+ml gcc/8.3.0
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/8.3.0
 ```
 
 Same thing for the manually imported MPIs. MPIs installed with Spack should do this automatically with the code hack described above, for that particular CPU architecture (generic Nehalem, Sandybridge (KP) or Skylake (NP)).
@@ -350,11 +357,11 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
 
-```spack env <package><options>``` - display build environment. TIP: make sure to have all variants listed w/o space otherwise the `env` command will want to run the spaced out variant as another command, e.g. `spack env espresso@6.1.0%intel@2018.0.128~elpa+mpi+openmp^intel-mkl`
-
 ```spack install <package> <options>``` - install the package. NOTE - by default all CPU cores are used so on interactive nodes, use the ```-j N``` option to limit number of parallel build processes.
 
-```spack find -dl <package>``` - display installed packages (```-dl``` will print version details)
+Note: The build files will be by default stored in ```/scratch/local/$user/spack-stage```, followed by ```~/.spack/stage```, followed by ```$TEMPDIR```. To use a different directory, use the ```-C``` flag, e.g. ```spack -C $HOME/spack install <package> <options>```.
+
+```spack find -dlv <package>``` - display installed packages (```-dlv``` will print dependencies and build options)
 
 #### Dependencies:
 ```%``` - compiler, e.g. ```%intel```
