@@ -22,6 +22,8 @@
       - [Modifying the spec file](#modifying-the-spec-file)
       - [Adding new version of an existing package](#adding-new-version-of-an-existing-package)
       - [Troubleshooting](#troubleshooting)
+      - [Caveats](#caveats)
+    + [User space usage](#user-space-usage)
   * [Things to discuss at CHPC](#things-to-discuss-at-chpc)
     + [Spack vs. easybuild](#spack-vs-easybuild)
   * [Advanced usage](#advanced-usage)
@@ -43,18 +45,18 @@
 
 ### CHPC custom configuration (to be confirmed)
 
-```/uufs/chpc.utah.edu/sys/spack``` - root directory for package installation
+`/uufs/chpc.utah.edu/sys/spack` - root directory for package installation
 
-```/uufs/chpc.utah.edu/sys/modulefiles/spack``` - Lmod module files
+`/uufs/chpc.utah.edu/sys/modulefiles/spack` - Lmod module files
 
-```/scratch/local``` - local drive where the build is performed (= need to make sure to build on machine that has it)
+`/scratch/local` - local drive where the build is performed (= need to make sure to build on machine that has it)
 
 
 ### Package installation and setup
 
 Install from Github (may need to version in the future so may need to have own fork)
 
-```git clone https://github.com/spack/spack.git```
+`git clone https://github.com/spack/spack.git`
 
 Basic setup (to be put to hpcapps .tcshrc)
 ```
@@ -77,8 +79,8 @@ For newer CPU architecture specific builds, also load the following:
 ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/$CHPC_ARCH
 ```
 where CHPC_ARCH depends on the machine where one logs in, in particular
-- kingspeak - ```linux-centos7-sandybridge```
-- notchpeak - ```linux-centos7-skylake_avx512```, ```zen```, or ```zen2``` (for AMD nodes)
+- kingspeak - `linux-centos7-sandybridge`
+- notchpeak - `linux-centos7-skylake_avx512`, `zen`, or `zen2` (for AMD nodes)
 
 
 ### CHPC configuration
@@ -102,13 +104,13 @@ spack config get config
 
 #### Compiler setup
 
-Follow [https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration](https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration) to add compiler to your user config, and then change it in the global config at ```/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack``` as well.
+Follow [https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration](https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration) to add compiler to your user config, and then change it in the global config at `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack` as well.
 
-Since we have license info for Intel, PGI and Matlab in the ```/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/modules.yaml```, the license info does not need to be put in compilers.yaml. Also, RPATH seems to be added correctly without explicitly being in compilers.yaml.
+Since we have license info for Intel, PGI and Matlab in the `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/modules.yaml`, the license info does not need to be put in compilers.yaml. Also, RPATH seems to be added correctly without explicitly being in compilers.yaml.
 
 Compilers defined are the latest Intel (2018.0), PGI (17.10), stock gcc (4.8.5) and gcc(5.4.0). More can be added, or perhaps easier built with Spack.
 
-(go over config files and explain concretization preferences in ```packages.yaml```, as per [http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences](http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences))
+(go over config files and explain concretization preferences in `packages.yaml`, as per [http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences](http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences))
 
 Other preinstalled packages that have been included into Spack (list may grow in the future):
 - Intel MPI
@@ -120,12 +122,12 @@ In order to use our Core - Compiler - MPI hierarchy, we had to modify both the c
 
 #### Configuration modification
 
-To get the module names/versions to be consitent with CHPC namings, we had to add the following to ```modules.yaml```:
+To get the module names/versions to be consitent with CHPC namings, we had to add the following to `modules.yaml`:
 - remove the hash from the module name:
 ```
     hash_length: 0
 ```
-- create modules only for explicitly installed packages (with ```spack install package```), and whitelist the MPIs (currently just Intel MPI):
+- create modules only for explicitly installed packages (with `spack install package`), and whitelist the MPIs (currently just Intel MPI):
 ```
     blacklist_implicits: true
     whitelist:
@@ -141,7 +143,7 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
     hierarchy:
       - mpi
 ```
-- use the [projections](https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules) to customize the modules hierarchy. Also, add suffix ```gpu``` to the module name built for GPU (currently just CUDA). Note that the ```all``` is always evaluated and the rest of the projections have priority top-down, that is, in our case, if we have a CUDA package built with MPI, the ```^mpi^cuda``` takes precedence over the ```^cuda```:
+- use the [projections](https://spack.readthedocs.io/en/latest/module_file_support.html#customize-the-naming-of-modules) to customize the modules hierarchy. Also, add suffix `gpu` to the module name built for GPU (currently just CUDA). Note that the `all` is always evaluated and the rest of the projections have priority top-down, that is, in our case, if we have a CUDA package built with MPI, the `^mpi^cuda` takes precedence over the `^cuda`:
 ```
     projections:
       all: '{architecture}/{name}/{version}'
@@ -149,7 +151,7 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
       ^mpi: 'MPI/{architecture}/{compiler.name}/{compiler.version}/{^mpi.name}/{^mpi.version}/{name}/{version}'
       ^cuda: '{architecture}/{name}/{version}-gpu'
 ```
-- add ```PACKAGE_ROOT``` environment variable:
+- add `PACKAGE_ROOT` environment variable:
 ```
     all:
       environment:
@@ -177,7 +179,7 @@ while we want
 linux-centos7-x86_64/MPI/linux-centos7-nehalem/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
 ```
 
-Note also that the compiler/MPI hierarchy allows the module file to be unique without needing another specifier, like the hash, in the MPI/compiler hierarchy that Spack builds using the ```mpi``` hierarchy option.
+Note also that the compiler/MPI hierarchy allows the module file to be unique without needing another specifier, like the hash, in the MPI/compiler hierarchy that Spack builds using the `mpi` hierarchy option.
 
 Also, the Compiler hierarchy does not seem to be possible to be added via the projections, so, we can not add the `Compiler` string into the hierarchy path. 
 
@@ -206,9 +208,9 @@ To fix these two issues, we modified the Spacks `lmod.py` on line 242 as follows
           )
 ```
 
-A more elegant way to fix this would be to modify the hierarchy_name in such a way that it would have the compiler/MPI hierarchy and have the ```Compiler``` and ```MPI``` path prefixes like the ```Core```, but, that would require some more reverse engineering of the code.
+A more elegant way to fix this would be to modify the hierarchy_name in such a way that it would have the compiler/MPI hierarchy and have the `Compiler` and ```MPI``` path prefixes like the `Core`, but, that would require some more reverse engineering of the code.
 
-One more fix is required to fix the `MODULEPATH` environment variable modification in the MPI module file. This is done in function ```unlocked_paths()``` at line 411 of file ```lmod.py```, by replacing:
+One more fix is required to fix the `MODULEPATH` environment variable modification in the MPI module file. This is done in function `unlocked_paths()` at line 411 of file `lmod.py`, by replacing:
 ```
         return [os.path.join(*parts) for parts in layout.unlocked_paths[None]]
 ```
@@ -226,15 +228,15 @@ with
           return [os.path.join(*parts) for parts in layout.unlocked_paths[None]]
 
 ```
-This changes the Spack generated path (which again ignores the projection) from e.g. ```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/mpich/3.3.2-jtr2h2o/intel/19.0.5.281``` to ```/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/MPI/intel/19.0.5.281/mpich/3.3.2``` by flipping the last two items in the list and removing the hash from the MPI module number.
+This changes the Spack generated path (which again ignores the projection) from e.g. `/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/mpich/3.3.2-jtr2h2o/intel/19.0.5.281` to `/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/MPI/intel/19.0.5.281/mpich/3.3.2` by flipping the last two items in the list and removing the hash from the MPI module number.
 
 Again, this is a fairly ugly hack and it remains to be seen if it breaks something somewhere.
 
-##### ```spack module lmod loads``` modification
+##### `spack module lmod loads` modification
 
-```spack module lmod loads --dependencies``` can be used to produce a list of ```module load``` commands for dependencies of a given package. This is especially useful to load Python modules stack. 
+`spack module lmod loads --dependencies` can be used to produce a list of `module load` commands for dependencies of a given package. This is especially useful to load Python modules stack. 
 
-Spack does not seem to honor the modules hierarchy in the ```module load modulename``` output of this command, e.g., we get something like this:
+Spack does not seem to honor the modules hierarchy in the `module load modulename` output of this command, e.g., we get something like this:
 ```
 ml gcc/8.3.0
 spack module lmod loads --dependencies py-mpi4py
@@ -247,7 +249,7 @@ module load linux-centos7-nehalem/intel-mpi/2019.8.254
 # py-mpi4py@3.0.3%gcc@8.3.0 arch=linux-centos7-nehalem
 module load MPI/linux-centos7-nehalem/gcc/8.3.0/intel-mpi/2019.8.254/py-mpi4py/3.0.3
 ```
-The ```filename``` is corrected by the above modifications, but, the name of the module, used to load it, still has the old, incorrect, name. We modify this in ```/uufs/chpc.utah.edu/sys/installdir/spack/0.16.1/lib/spack/spack/modules``` at line 380 by replacing
+The `filename` is corrected by the above modifications, but, the name of the module, used to load it, still has the old, incorrect, name. We modify this in `/uufs/chpc.utah.edu/sys/installdir/spack/0.16.1/lib/spack/spack/modules` at line 380 by replacing
 ```
             return writer.layout.use_name
 ```
@@ -279,7 +281,7 @@ OS-OSVer/MPI/architecture/compiler.name/compiler.version/mpi.name/mpi.version/na
 
 #### Integration into existing Lmod
 
-In our module shell init files, we need to ```use``` the Spack Lmod module tree:
+In our module shell init files, we need to `use` the Spack Lmod module tree:
 
 ``` 
 ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
@@ -310,12 +312,12 @@ Same thing for the manually imported MPIs. MPIs installed with Spack should do t
 
 ##### Caveat
 
-```module spider``` will not find the Spack built module in the hierarchy if the Compiler and Core module paths are not in the MODULEPATH. But Lmod should be capable of having multiple entries in MODULEPATH-> test if spider cache will make them to be found, https://lmod.readthedocs.io/en/latest/130_spider_cache.html#how-to-test-the-spider-cache-generation-and-usage. 
+`module spider` will not find the Spack built module in the hierarchy if the Compiler and Core module paths are not in the MODULEPATH. But Lmod should be capable of having multiple entries in MODULEPATH-> test if spider cache will make them to be found, https://lmod.readthedocs.io/en/latest/130_spider_cache.html#how-to-test-the-spider-cache-generation-and-usage. 
 -> also test if can have different spider caches for different CPU architectures - https://lmod.readthedocs.io/en/latest/130_spider_cache.html#scenario-2-different-computers-owning-different-module-trees
 
 ### Adding already installed package (installed w/o spack)
 
-Edit the ```packages``` config file appropriately:
+Edit the `packages` config file appropriately:
 ```
 spack config --scope site edit packages
   intel-mkl:
@@ -323,9 +325,9 @@ spack config --scope site edit packages
       intel-mkl@2018.0.128 arch=linux-centos7-x86_64: /uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.0.128/linux/mkl
     buildable: False
 ```
-- the ```buildable: False``` tells Spack to never install this package
+- the `buildable: False` tells Spack to never install this package
 
-In the actual package file, check the ```prefix``` variable so it maps to our directory structure
+In the actual package file, check the `prefix` variable so it maps to our directory structure
 ```
 spack edit intel-mkl
 ```
@@ -335,7 +337,7 @@ spack spec hpl
 spack spec hpl%intel
 ```
 
-Test build the code (if the ```prefix``` is not correct, the build will crash here)
+Test build the code (if the `prefix` is not correct, the build will crash here)
 ```spack install hpl```
 
 ## Basic use
@@ -353,20 +355,20 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 ### Basic installation workflow
 ```spack list <package>``` - find if the package is known to Spack
 
-```spack compilers``` - list available compilers (pre-installed as defined in ```compilers.yaml``` file or installed with Spack)
+```spack compilers``` - list available compilers (pre-installed as defined in `compilers.yaml` file or installed with Spack)
 
 ```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
 
-```spack install <package> <options>``` - install the package. NOTE - by default all CPU cores are used so on interactive nodes, use the ```-j N``` option to limit number of parallel build processes.
+```spack install <package> <options>``` - install the package. NOTE - by default all CPU cores are used so on interactive nodes, use the `-j N` option to limit number of parallel build processes.
 
-Note: The build files will be by default stored in ```/scratch/local/$user/spack-stage```, followed by ```~/.spack/stage```, followed by ```$TEMPDIR```. To use a different directory, use the ```-C``` flag, e.g. ```spack -C $HOME/spack install <package> <options>```.
+Note: The build files will be by default stored in `/scratch/local/$user/spack-stage`, followed by `~/.spack/stage`, followed by `$TEMPDIR`. To use a different directory, use the `-C` flag, e.g. `spack -C $HOME/spack install <package> <options>`.
 
-```spack find -dlv <package>``` - display installed packages (```-dlv``` will print dependencies and build options)
+```spack find -dlv <package>``` - display installed packages (`-dlv` will print dependencies and build options)
 
 #### Dependencies:
-```%``` - compiler, e.g. ```%intel```
+`%` - compiler, e.g. `%intel`
 
-```@``` - version, e.b. ```%intel@2018.0.128```
+`@` - version, e.b. `%intel@2018.0.128`
 
 #### Build a package with dependency built with a different compiler:
 ```spack install openmpi%pgi ^libpciaccess%gcc```
@@ -378,42 +380,98 @@ Use (mirror)[https://spack.readthedocs.io/en/latest/basic_usage.html#non-downloa
 ... more to be added
 
 #### Examples
-```spack install hpl%intel``` - install HPL with default version of Intel compiler and default BLAS (MKL) and MPI (Intel MPI).
+`spack install hpl%intel` - install HPL with default version of Intel compiler and default BLAS (MKL) and MPI (Intel MPI).
 
-```spack install --keep-stage espresso@6.1.0 %intel@2018.0.128 -elpa +mpi +openmp ^intel-mkl threads=openmp``` - install Quantum Espresso with Intel compiler, MKL, Intel MPI (default) and threads
+`spack install --keep-stage espresso@6.1.0 %intel@2018.0.128 -elpa +mpi +openmp ^intel-mkl threads=openmp` - install Quantum Espresso with Intel compiler, MKL, Intel MPI (default) and threads
 
 #### Modifying the spec file
-In general, be careful when editing the spec files so they don't break. In the future we will use our own branch of Spack to version control our changes and potentially create pull requests to Spack's main branch if we add new packages or do useful change to existing package spec.
+In general, be careful when editing the spec files so they dont break. In the future we will use our own branch of Spack to version control our changes and potentially create pull requests to Spacks main branch if we add new packages or do useful change to existing package spec.
 
-```spack edit <package>``` will open vi editor with the package's package.py spec file. E.g. ```spack edit hpl```.
-```env['F90']=spack_fc``` - adds environment variable F90 that point's to Spack's defined FC compiler, ```spack_fc```
-```env['FCFLAGS']='-g -O3 -ip'``` - adds explicitly defined environment variable
+`spack edit <package>` will open vi editor with the packages package.py spec file. E.g. `spack edit hpl`.
+`env['F90']=spack_fc` - adds environment variable F90 that points to Spacks defined FC compiler, `spack_fc`
+`env['FCFLAGS']='-g -O3 -ip'` - adds explicitly defined environment variable
 
 #### Adding new version of an existing package
 
 First get the checksum with `spack checksum <package>`. If new version is not found, see what is the hierarchy of the versions in the URL specified in the `package.py`. This can be specified by `list_url` and `list_depth`, as e.g. in `postgresql` package. This is detailed in [http://spack.readthedocs.io/en/latest/packaging_guide.html#finding-new-versions](http://spack.readthedocs.io/en/latest/packaging_guide.html#finding-new-versions)
 
 #### Troubleshooting
-```spack -d <command>```  will print out more detailed information with stack trace of the error - one then can look in the Spack python code and potentially modify it (as hpcapps) to print function arguments that may hint on the problem
+`spack -d <command>`  will print out more detailed information with stack trace of the error - one then can look in the Spack python code and potentially modify it (as hpcapps) to print function arguments that may hint on the problem
 
-```spack help -a``` - gives the most generic help
+`spack help -a` - gives the most generic help
 
-``` spack python``` - runs Python with Spack module being loaded, so, one can run Spack functions, e.g. ```>>> print(spack.config.get_config('config'))```
+` spack python` - runs Python with Spack module being loaded, so, one can run Spack functions, e.g. `>>> print(spack.config.get_config('config'))`
 
 #### Caveats
 
 - older versions of the packages may have trouble building with the default (newer) versions of dependencies. Unless older version is required, build the latest version. Spack developers recommend using older compiler versions (e.g. as of Feb 2021, gcc 8 rather than 9 or 10).
 
-- sometimes dependency builds fail. If this happens, try to build the dependency independently. First run ```spack spec``` on the package you want to build, and find the full spec of the failed package. Then try to ```spack install``` this failed package with that full spec. E.g., for ```py-spyder```, built as ```spack install -j2 py-spyder%gcc@8.3.0^cmake@3.18.4^py-ipython@7.3.0^cairo+ft arch=nehalem```, we get ```qt``` build failure. The ```qt``` build specs as ```py-spyder``` requires are ```spack -C ~/spack-mcuma install qt@5.14.2%gcc@8.3.0~dbus~debug~examples~framework~gtk+opengl~phonon+shared+sql+ssl+tools+webkit freetype=spack patches=7f34d48d2faaa108dc3fcc47187af1ccd1d37ee0f931b42597b820f03a99864c arch=linux-centos7-nehalem```.
+- sometimes dependency builds fail. If this happens, try to build the dependency independently. First run `spack spec` on the package you want to build, and find the full spec of the failed package. Then try to `spack install` this failed package with that full spec. E.g., for `py-spyder`, built as `spack install -j2 py-spyder%gcc@8.3.0^cmake@3.18.4^py-ipython@7.3.0^cairo+ft arch=nehalem`, we get `qt` build failure. The `qt` build specs as `py-spyder` requires are `spack -C ~/spack-mcuma install qt@5.14.2%gcc@8.3.0~dbus~debug~examples~framework~gtk+opengl~phonon+shared+sql+ssl+tools+webkit freetype=spack patches=7f34d48d2faaa108dc3fcc47187af1ccd1d37ee0f931b42597b820f03a99864c arch=linux-centos7-nehalem`.
 
-```qt``` is a good example of troubleshooting further build failure - the build fails as it is set above. Looking at the error message in the build log file, which is saved during build failures, and which states that Python 2 is required. This is confirmed by web search, and, noting by ```spack edit qt``` that Python is required by qt: ```depends_on("python", when='@5.7.0:', type='build')```. The trouble is that some dependencies (e.g. ```glib```) require Python 3 to build and/or run. Therefore need to go over the ```spack spec``` output to see what these packages are, and see what are the highest versions that dont have Python dependency. Then put these versions as explicit dependencies, e.g.:
+`qt` is a good example of troubleshooting further build failure - the build fails as it is set above. Looking at the error message in the build log file, which is saved during build failures, and which states that Python 2 is required. This is confirmed by web search, and, noting by `spack edit qt` that Python is required by qt: `depends_on("python", when='@5.7.0:', type='build')`. The trouble is that some dependencies (e.g. `glib`) require Python 3 to build and/or run. Therefore need to go over the `spack spec` output to see what these packages are, and see what are the highest versions that dont have Python dependency. Then put these versions as explicit dependencies, e.g.:
 ```
 spack -C ~/spack-mcuma spec qt@5.14.2%gcc@8.3.0~dbus~debug~examples~framework~gtk~opengl~phonon+shared+sql+ssl+tools+webkit freetype=spack patches=7f34d48d2faaa108dc3fcc47187af1ccd1d37ee0f931b42597b820f03a99864c arch=linux-centos7-nehalem ^cmake@3.18.4 ^glib@2.53.1 ^icu4c@60.3 
 ```
 
-- be careful about rebuilding the failed package with added specs, like compiler flags (```ldflags```, .etc). Spack will try to rebuild all the dependencies
+- be careful about rebuilding the failed package with added specs, like compiler flags (`ldflags`, .etc). Spack will try to rebuild all the dependencies
 
-- sometimes during repeated build troubleshooting multiple builds of a package may be created which will conflict when e.g. generate module files. I usually keep only one build, and remove others. First check what is installed, e.g. ```spack find -cfdvl qt```. Then uninstall the unwanted ones through a hash, e.g. ```spack uninstall /sp26csq```. If there are dependents on this package, Spack will print a warning. This warning usually indicates that this version is the one that you want to keep.
+- sometimes during repeated build troubleshooting multiple builds of a package may be created which will conflict when e.g. generate module files. I usually keep only one build, and remove others. First check what is installed, e.g. `spack find -cfdvl qt`. Then uninstall the unwanted ones through a hash, e.g. `spack uninstall /sp26csq`. If there are dependents on this package, Spack will print a warning. This warning usually indicates that this version is the one that you want to keep.
+
+### User space usage
+
+It may be a good idea to test if installation of a package works as intended in installing it to home directory before deploying to the `sys` branch. This same approach can be used by an user to extend CHPC installed programs by his/her own.
+
+For this we need to create user Spack configuration that upstreams to the CHPC installation.
+1. Create a user Spack directory
+```mkdir -p $HOME/spack/local```
+2. In this directory put an user `config.yaml` which is the same as the one in `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack`, except:
+```
+  install_tree:
+    projections:
+      all: ${ARCHITECTURE}/${COMPILERNAME}-${COMPILERVER}/${PACKAGE}-${VERSION}-${HASH}
+    root: $HOME/spack/local/builds
+  template_dirs:
+  - $HOME/spack/local/templates
+  module_roots:
+    lmod: $HOME/spack/local/modules
+```
+This will cause Spack to put the built programs and module files to the user directory.
+3. Point to CHPC Spack built programs via the `upstream.yaml`:
+```
+upstreams:
+  chpc-instance:
+    install_tree: /uufs/chpc.utah.edu/sys/spack
+```
+
+Once this is set up, one can check if the package is using the upstream repo by e.g.
+```
+$ spack -C $HOME/spack/local spec -I octave target=nehalem
+Input spec
+--------------------------------
+ -   octave arch=linux-None-nehalem
+
+Concretized
+--------------------------------
+[-]  octave@6.2.0%gcc@8.3.0~arpack~curl~fftw~fltk~fontconfig~freetype~gl2ps~glpk~gnuplot~hdf5~jdk~llvm~magick~opengl~qhull~qrupdate~qscintilla~qt+readline~suitesparse~zlib arch=linux-centos7-nehalem
+[^]      ^intel-mkl@2020.3.279%gcc@8.3.0~ilp64+shared threads=none arch=linux-centos7-nehalem
+[^]          ^cpio@2.13%gcc@8.3.0 arch=linux-centos7-nehalem
+[^]      ^pcre@8.44%gcc@8.3.0~jit+multibyte+utf arch=linux-centos7-nehalem
+[^]      ^pkgconf@1.7.3%gcc@8.3.0 arch=linux-centos7-nehalem
+[^]      ^readline@8.0%gcc@8.3.0 arch=linux-centos7-nehalem
+[^]          ^ncurses@6.2%gcc@8.3.0~symlinks+termlib arch=linux-centos7-nehalem
+```
+The `[^]` denotes packages used from upstream, `[-]` packages that are missing in the upstream.
+
+Now we can build the new program which will then store the build in `$HOME/spack/local/builds`
+```
+spack -C $HOME/spack/local spec octave target=nehalem
+```
+
+Because the `gcc/8.3.0` is not the default system compiler module files built this way can be loaded with
+```
+module load gcc/8.3.0
+module use $HOME/spack/local/modules/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/8.3.0
+```
 
 ## Things to discuss at CHPC
 - install dir and local drive for building, module files location
@@ -437,10 +495,10 @@ I.e. installing a package that is not defined yet
 
 - follow the package creation tutorial [http://spack.readthedocs.io/en/latest/tutorial_packaging.html](http://spack.readthedocs.io/en/latest/tutorial_packaging.html) if stuck.
 - create basic YAML definition file that needs to be further filled in
- ```spack create <package url>```
-- edit the file and fill in what's needed
+ `spack create <package url>`
+- edit the file and fill in whats needed
 ```spack edit <package>```
-- find a package that is similar to what you're trying to install to get further ideas on what to do, based on the build specifics
+- find a package that is similar to what you are trying to install to get further ideas on what to do, based on the build specifics
 -- autoconf, cmake, make, ...
 
 ### Debugging spack
@@ -462,7 +520,7 @@ I.e. figuring out where build or other errors come from
  - ANL has /soft/spack - we can have /uufs/chpc.utah.edu/sys/spack
 - local preinstalled software - mainly - PART
 - prototype installdir structure, modules (module use for the spack built tree) - DONE
-- apps to try (unless there's an explicit need)
+- apps to try (unless there is an explicit need)
  -- hpl - DONE
  -- check difference between intel, intel-parallel-studio, intel-mpi -> use pre-installed intel, intel-mpi, no intel-parallel-studio as it puts everything in one module
  -- when building look at how dependencies are being built (e.g. mpi, fftw)
