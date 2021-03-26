@@ -168,7 +168,7 @@ Even with the use of projections, as of ver. 0.16, parts of the path are hard co
         )   
 ```
 
-The ```hierarchy_name``` is what Spack determines based on the ```hierarchy``` option from ```modules.yaml```, and the ```self.use.name``` is what the projection builds, so for the ```^mpi``` projection definition, the final path is a concatenation of the two . For example, we end up with a path like this:
+The `hierarchy_name` is what Spack determines based on the `hierarchy` option from `modules.yaml`, and the `self.use.name` is what the projection builds, so for the `^mpi` projection definition, the final path is a concatenation of the two . For example, we end up with a path like this:
 ```
 linux-centos7-x86_64/intel-mpi/2019.8.254-kvtpiwf/intel/19.0.5.281/MPI/intel/19.0.5.281/intel-mpi/2019.8.254/parallel-netcdf/1.12.1.lua
 ```
