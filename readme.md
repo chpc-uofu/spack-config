@@ -1,9 +1,9 @@
 
 - [Spack package manager at CHPC](#spack-package-manager-at-chpc)
   * [Basic information](#basic-information)
-  * [Spack nstallation and setup](#installation-and-setup)
-    + [CHPC custom configuration (to be confirmed)](#chpc-custom-configuration--to-be-confirmed-)
-    + [Package installation and setup](#package-installation-and-setup)
+  * [Spack installation and setup](#installation-and-setup)
+    + [Spack installation and setup](#spack-installation-and-setup)
+    + [CHPC custom directory locations](#chpc-custom-directory locations)
     + [CHPC configuration](#chpc-configuration)
       - [Compiler setup](#compiler-setup)
     + [CHPC Lmod integration](#chpc-lmod-integration)
@@ -43,15 +43,6 @@
 
 ## Spack installation and setup
 
-### CHPC custom configuration (to be confirmed)
-
-`/uufs/chpc.utah.edu/sys/spack` - root directory for package installation
-
-`/uufs/chpc.utah.edu/sys/modulefiles/spack` - Lmod module files
-
-`/scratch/local` - local drive where the build is performed (= need to make sure to build on machine that has it)
-
-
 ### Package installation and setup
 
 Install from Github (may need to version in the future so may need to have own fork)
@@ -81,6 +72,16 @@ ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/$CHPC
 where CHPC_ARCH depends on the machine where one logs in, in particular
 - kingspeak - `linux-centos7-sandybridge`
 - notchpeak - `linux-centos7-skylake_avx512`, `zen`, or `zen2` (for AMD nodes)
+
+### CHPC custom directory locations
+
+`/uufs/chpc.utah.edu/sys/spack` - root directory for package installation
+
+`/uufs/chpc.utah.edu/sys/modulefiles/spack` - Lmod module files
+
+`/scratch/local`, or `~/.spack/stage` - local drive where the build is performed (= need to make sure to build on machine that has it)
+
+`/uufs/chpc.utah.edu/sys/srcdir/spack-cache` - cache for downloaded package sources
 
 
 ### CHPC configuration
@@ -158,6 +159,8 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
         set:
           '{name}_ROOT': '{prefix}'
 ```
+
+!!! Need to also `add_property("arch","gpu")` to all the GPU built modules - likely through the module template
 
 #### Code modification
 
@@ -350,6 +353,15 @@ if not done in .tcshrc
 ```
 setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
 source $SPACK_ROOT/share/spack/setup-env.csh
+setenv PATH $SPACK_ROOT/bin:$PATH
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
+```
+for bash:
+```
+export SPACK_ROOT=/uufs/chpc.utah.edu/sys/installdir/spack/spack
+source $SPACK_ROOT/share/spack/setup-env.sh
+export PATH=$SPACK_ROOT/bin:$PATH
+ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
 ```
 
 ### Basic installation workflow
@@ -357,7 +369,9 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 ```spack compilers``` - list available compilers (pre-installed as defined in `compilers.yaml` file or installed with Spack)
 
-```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
+```spack info <package>``` - information about package versions, variants, dependencies
+
+ ```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
 
 ```spack install <package> <options>``` - install the package. NOTE - by default all CPU cores are used so on interactive nodes, use the `-j N` option to limit number of parallel build processes.
 
