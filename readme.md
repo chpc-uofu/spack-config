@@ -3,7 +3,7 @@
   * [Basic information](#basic-information)
   * [Spack installation and setup](#installation-and-setup)
     + [Spack installation and setup](#spack-installation-and-setup)
-    + [CHPC custom directory locations](#chpc-custom-directory locations)
+    + [CHPC custom directory locations](#chpc-custom-directory-locations)
     + [CHPC configuration](#chpc-configuration)
       - [Compiler setup](#compiler-setup)
     + [CHPC Lmod integration](#chpc-lmod-integration)
