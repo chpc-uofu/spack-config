@@ -46,7 +46,7 @@ config:
   # `spack clean -a`, so it is important that the specified directory uniquely
   # identifies Spack staging to avoid accidentally wiping out non-Spack work.
   build_stage:
-  - /scratch/local/$user/spack-stage
+  - /scratch/local/$user/$SLURM_JOB_ID
   - ~/.spack/stage
   - $tempdir/$user/spack-stage
   # MC moved $tempdir to the end as RAM disk is small, some packages (LLVM) builds fail
