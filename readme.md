@@ -438,7 +438,7 @@ It may be a good idea to test if installation of a package works as intended in 
 For this we need to create user Spack configuration that upstreams to the CHPC installation.
 1. Create a user Spack directory
 ```mkdir -p $HOME/spack/local```
-2. In this directory put an user `config.yaml` which is the same as the one in `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack`, except:
+2. In this directory put an user `config.yaml` which is the same as the `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/config.yaml`, except:
 ```
   install_tree:
     projections:
@@ -452,6 +452,7 @@ For this we need to create user Spack configuration that upstreams to the CHPC i
 This will cause Spack to put the built programs and module files to the user directory.
 3. Point to CHPC Spack built programs via the `upstream.yaml`:
 ```
+# Put this in ~/spack/local/upstream.yaml
 upstreams:
   chpc-instance:
     install_tree: /uufs/chpc.utah.edu/sys/spack
