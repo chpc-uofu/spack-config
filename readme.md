@@ -83,6 +83,9 @@ where CHPC_ARCH depends on the machine where one logs in, in particular
 
 `/uufs/chpc.utah.edu/sys/srcdir/spack-cache` - cache for downloaded package sources
 
+`/uufs/chpc.utah.edu/sys/spack/mirror` - locally downloaded package sources (e.g. Amber)
+
+`/uufs/chpc.utah.edu/sys/spack/repos` - local repository of package recipes, setup documented in details at [https://spack.readthedocs.io/en/latest/repositories.html#](https://spack.readthedocs.io/en/latest/repositories.html#)
 
 ### CHPC configuration
 
@@ -102,14 +105,19 @@ check with
 ```
 spack config get config
 ```
+#### External packages
+
+By default Spack builds all the dependencies. Most programs can use some basic system packages, e.g.
+```
+spack external find perl autoconf automake libtool pkgconf gmake tar openssl flex ncurses bison findutils m4 bash gawk util-macros fontconfig sqlite curl libx11 libxft libxscrnsaver libxext
+```
+This will go to `$USER/.spack/packages.yaml` which can be then moved to the system-wide `packages.yaml`
 
 #### Compiler setup
 
-Follow [https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration](https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration) to add compiler to your user config, and then change it in the global config at `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack` as well.
+Use the `spack compiler find` comand as described at [https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration](https://spack.readthedocs.io/en/latest/getting_started.html#compiler-configuration) to add compiler to your user config, and then change it in the global config at `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack` as well.
 
 Since we have license info for Intel, PGI and Matlab in the `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/modules.yaml`, the license info does not need to be put in compilers.yaml. Also, RPATH seems to be added correctly without explicitly being in compilers.yaml.
-
-Compilers defined are the latest Intel (2018.0), PGI (17.10), stock gcc (4.8.5) and gcc(5.4.0). More can be added, or perhaps easier built with Spack.
 
 (go over config files and explain concretization preferences in `packages.yaml`, as per [http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences](http://spack.readthedocs.io/en/latest/build_settings.html#concretization-preferences))
 
@@ -414,6 +422,8 @@ First get the checksum with `spack checksum <package>`. If new version is not fo
 
 `spack help -a` - gives the most generic help
 
+`spack build env <package> bash` 
+
 ` spack python` - runs Python with Spack module being loaded, so, one can run Spack functions, e.g. `>>> print(spack.config.get_config('config'))`
 
 #### Caveats
@@ -450,6 +460,7 @@ For this we need to create user Spack configuration that upstreams to the CHPC i
     lmod: $HOME/spack/local/modules
 ```
 This will cause Spack to put the built programs and module files to the user directory.
+
 3. Point to CHPC Spack built programs via the `upstream.yaml`:
 ```
 upstreams:
@@ -486,6 +497,8 @@ Because the `gcc/8.3.0` is not the default system compiler module files built th
 module load gcc/8.3.0
 module use $HOME/spack/local/modules/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/8.3.0
 ```
+
+NOTE: You can also put the user `config.yaml` and `upstream.yaml` to `~/.spack`, which will make it default for any user interaction, thus not requiring the `-C` option with the `spack` commands. More details on precendence of config file locations is [here](https://spack.readthedocs.io/en/latest/configuration.html#scope-precedence).
 
 ## Things to discuss at CHPC
 - install dir and local drive for building, module files location
