@@ -443,6 +443,8 @@ spack -C ~/spack-mcuma spec qt@5.14.2%gcc@8.3.0~dbus~debug~examples~framework~gt
 
 ### User space usage
 
+To get started, here's [long but informative video](https://youtu.be/edpgwyOD79E).
+
 It may be a good idea to test if installation of a package works as intended in installing it to home directory before deploying to the `sys` branch. This same approach can be used by an user to extend CHPC installed programs by his/her own.
 
 For this we need to create user Spack configuration that upstreams to the CHPC installation.
