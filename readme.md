@@ -16,13 +16,14 @@
     + [Source Spack](#source-spack)
     + [Basic installation workflow](#basic-installation-workflow)
       - [Dependencies:](#dependencies-)
-      - [Build a package with dependency built with a differen compiler:](#build-a-package-with-dependency-built-with-a-differen-compiler-)
+      - [Build a package with dependency built with a different compiler:](#build-a-package-with-dependency-built-with-a-differen-compiler-)
       - [External packages (not directly downloadable)](#external-packages--not-directly-downloadable-)
       - [Examples](#examples)
       - [Modifying the spec file](#modifying-the-spec-file)
       - [Adding new version of an existing package](#adding-new-version-of-an-existing-package)
       - [Troubleshooting](#troubleshooting)
       - [Caveats](#caveats)
+    + [CPU optimized builds](#cpu-optimized-builds)
     + [User space usage](#user-space-usage)
   * [Things to discuss at CHPC](#things-to-discuss-at-chpc)
     + [Spack vs. easybuild](#spack-vs-easybuild)
@@ -40,6 +41,7 @@
 - Github repo - [https://github.com/spack/spack](https://github.com/spack/spack)
 - documentation - [http://spack.readthedocs.io/en/latest/](http://spack.readthedocs.io/en/latest/)
 - tutorial (very useful for learning both basic and more advanced functionality) - [http://spack.readthedocs.io/en/latest/tutorial.html](http://spack.readthedocs.io/en/latest/tutorial.html)
+- [tutorial video](https://www.youtube.com/watch?v=RlczUgwFCJg) March 2021 
 
 ## Spack installation and setup
 
@@ -422,7 +424,7 @@ First get the checksum with `spack checksum <package>`. If new version is not fo
 
 `spack help -a` - gives the most generic help
 
-`spack build env <package> bash` 
+`spack build-env <package> bash` 
 
 ` spack python` - runs Python with Spack module being loaded, so, one can run Spack functions, e.g. `>>> print(spack.config.get_config('config'))`
 
@@ -440,6 +442,28 @@ spack -C ~/spack-mcuma spec qt@5.14.2%gcc@8.3.0~dbus~debug~examples~framework~gt
 - be careful about rebuilding the failed package with added specs, like compiler flags (`ldflags`, .etc). Spack will try to rebuild all the dependencies
 
 - sometimes during repeated build troubleshooting multiple builds of a package may be created which will conflict when e.g. generate module files. I usually keep only one build, and remove others. First check what is installed, e.g. `spack find -cfdvl qt`. Then uninstall the unwanted ones through a hash, e.g. `spack uninstall /sp26csq`. If there are dependents on this package, Spack will print a warning. This warning usually indicates that this version is the one that you want to keep.
+
+### CPU optimized builds
+
+#### Target microarchitectures
+
+Microarchitectures availble through Spack are queried with `[spack arch --known-targets](https://spack.readthedocs.io/en/latest/packaging_guide.html?highlight=target#architecture-specifiers)`. The uarch name can be used as the `target` specifier in the `spack install target=XXX` option. 
+
+The Spack docs also [https://spack.readthedocs.io/en/latest/packaging_guide.html?highlight=target#architecture-specifiers](describe) how this can be used in the package specs to implement uarch specific optimizations.
+
+#### Spack implementation specifics
+
+When the `target` option is used, Spack injects the architecture optimization flags into the builds. While this is not clear from the `spack install --verbose` option, since that outputs the compilation lines as Spack reads them, the actual compilation lines that Spack uses are obtained with the `--debug` option, e.g. `spack --debug install --verbose`. When doing that, two files will be produced in the current directory:
+    spack-cc-{NAME}-{HASH}.in.log
+    spack-cc-{NAME}-{HASH}.out.log
+
+The in.log files shows the compiler output before the wrapper injects flags. The out.log file shows the compiler output after injecting the flags.
+
+The target detection capability is coming from [archspec](http://github.com/archspec/archspec), Spack library for detecting and reasoning about cpus and compilers. More details are at [this paper](https://tgamblin.github.io/pubs/archspec-canopie-hpc-2020.pdf). In Spack, archspec now lives in [lib/spack/external](https://github.com/spack/spack/tree/develop/lib/spack/external/archspec). And the information it’s using to determine flags is in [this file](https://github.com/spack/spack/blob/develop/lib/spack/external/archspec/json/cpu/microarchitectures.json). That will tell you all the microarchitecture targets that spack knows about, as well as the compilers and compiler flags it associates with them.
+
+Note that at the moment, Spack is only adding options that have to do with the instruction set (e.g., `-march`) and not specific optimization flags (those are left to the packages, the build systems, and user configuration).  The targets are designed to tell us where we can use optimized binaries — they’re currently aimed mainly at ensuring compatibility.
+
+Detailed discussion about this is at [this thread](https://groups.google.com/g/spack/c/2cExxjIvuOI).
 
 ### User space usage
 
