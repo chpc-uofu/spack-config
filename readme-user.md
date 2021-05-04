@@ -17,10 +17,16 @@ User can build their own packages leveraging CHPC Spack installed packages, whic
 
 To run spack in user space, one needs to tell it where to write all its files (typically users home directory), and configure to use the CHPC upstream repository. This needs to be done only once.
 
-1. Create a user Spack directory. Whis is where all user Spack related files go, including user Spack configuration and user built packages:
+1. Create a user Spack directory. Whis is where all user built packages and modules go:
 ```mkdir -p $HOME/spack/local```
 
-2. In this directory put an user `config.yaml` which is the same as the one in `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack`, except:
+2. If not already created, make a `~/.spack` directory where the configuration files go:
+```mkdir -p $HOME/.spack```
+
+2. In `~/.spack`, put an user `config.yaml` which is the same as the one in `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack`, i.e.
+```cp /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack ~/.spack```
+
+And then modify the following in this file:
 ```
   install_tree:
     projections:
@@ -35,7 +41,7 @@ This will cause Spack to put the built programs and module files to the user dir
 
 Note: To make the Spack generated module files available, one needs to `module use $HOME/spack/local/modules`
 
-3. Point to CHPC Spack built programs via the `upstream.yaml`:
+3. Point to CHPC Spack built programs via the `~/.spack/upstream.yaml`:
 ```
 upstreams:
   chpc-instance:
@@ -63,7 +69,7 @@ This needs to be done every time one uses Spack, so, it may be useful to place i
 
 When this is set up, one can check if the package is using the upstream repo by e.g.
 ```
-$ spack -C $HOME/spack/local spec -I octave target=nehalem
+$ spack spec -I octave target=nehalem
 Input spec
 --------------------------------
  -   octave arch=linux-None-nehalem
@@ -82,7 +88,7 @@ The `[^]` denotes packages used from upstream, `[-]` packages that are missing i
 
 Now we can build the new program which will then store the build in `$HOME/spack/local/builds`
 ```
-spack -C $HOME/spack/local spec octave target=nehalem
+spack install octave target=nehalem
 ```
 
 Because the `gcc/8.3.0` is not the default system compiler module files built this way can be made active with
@@ -91,7 +97,7 @@ module load gcc/8.3.0
 module use $HOME/spack/local/modules/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/8.3.0
 ```
 
-NOTE: You can also put the user `config.yaml` and `upstream.yaml` to `~/.spack`, which will make it default for any user interaction, thus not requiring the `-C` option with the `spack` commands. More details on precendence of config file locations is [here](https://spack.readthedocs.io/en/latest/configuration.html#scope-precedence).
+NOTE: You can put the configure files to other directory than `~/.spack`, but then you will need to point to this directory with the `-C` option of the `spack` commands. More details on precendence of config file locations is [here](https://spack.readthedocs.io/en/latest/configuration.html#scope-precedence).
 
 ### Basic installation workflow
 
