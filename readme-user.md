@@ -1,29 +1,21 @@
 # Spack package manager at CHPC - guide for users
 
 - [User space usage](#user-space-usage)
+- [Setting up user-based Spack](#setting-up-user-based-spack)
+  * [User Spack configuration](#user-spack-configuration)
+  * [Activating CHPC installed Spack](#activating-chpc-installed-spack)
+  * [Checking that all is good](#checking-that-all-is-good)
+- [Basic installation workflow](#basic-installation-workflow)
 
 # User space usage
 
 User can build their own packages leveraging CHPC Spack installed packages, which will both save time and user disk space. To leverage this option, one has to either run CHPC installed Spack or install his/her own, and set the CHPC Spack installed packages as upstream.
 
-## Activating up CHPC installed Spack
+# Setting up user-based Spack
 
-For the tcsh shell:
-```
-setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
-source $SPACK_ROOT/share/spack/setup-env.csh
-setenv PATH $SPACK_ROOT/bin:$PATH
-```
-for bash shell:
-```
-export SPACK_ROOT=/uufs/chpc.utah.edu/sys/installdir/spack/spack
-source $SPACK_ROOT/share/spack/setup-env.sh
-export PATH=$SPACK_ROOT/bin:$PATH
-```
+## User Spack configuration
 
-This needs to be done every time one uses Spack, so, it may be useful to place it in `custom.csh` or `custom.sh`.
-
-## Configuring Spack to for user repository with CHPC upstream
+To run spack in user space, one needs to tell it where to write all its files (typically users home directory), and configure to use the CHPC upstream repository. This needs to be done only once.
 
 1. Create a user Spack directory. Whis is where all user Spack related files go, including user Spack configuration and user built packages:
 ```mkdir -p $HOME/spack/local```
@@ -50,9 +42,24 @@ upstreams:
     install_tree: /uufs/chpc.utah.edu/sys/spack
 ```
 
-These three steps need to be done only once.
+## Activating CHPC installed Spack
 
-### Checking that all is good
+For the tcsh shell:
+```
+setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
+source $SPACK_ROOT/share/spack/setup-env.csh
+setenv PATH $SPACK_ROOT/bin:$PATH
+```
+for bash shell:
+```
+export SPACK_ROOT=/uufs/chpc.utah.edu/sys/installdir/spack/spack
+source $SPACK_ROOT/share/spack/setup-env.sh
+export PATH=$SPACK_ROOT/bin:$PATH
+```
+
+This needs to be done every time one uses Spack, so, it may be useful to place it in `custom.csh` or `custom.sh`.
+
+## Checking that all is good
 
 When this is set up, one can check if the package is using the upstream repo by e.g.
 ```
@@ -240,3 +247,7 @@ vim -d lib/spack/spack/modules/lmod.py ../0.16.0/lib/spack/spack/modules
 #end
 ```
 Similar will need to be done for the other shell init scripts, e.g. ```setup-env.sh```.
+
+### Basic installation workflow
+
+See part of the main [readme.md](readme.md#basic-installation-workflow)
