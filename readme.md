@@ -107,6 +107,11 @@ check with
 ```
 spack config get config
 ```
+To see what configuration options are being used
+```
+spack config blame config
+```
+
 #### External packages
 
 By default Spack builds all the dependencies. Most programs can use some basic system packages, e.g.
@@ -464,6 +469,15 @@ The target detection capability is coming from [archspec](http://github.com/arch
 Note that at the moment, Spack is only adding options that have to do with the instruction set (e.g., `-march`) and not specific optimization flags (those are left to the packages, the build systems, and user configuration).  The targets are designed to tell us where we can use optimized binaries — they’re currently aimed mainly at ensuring compatibility.
 
 Detailed discussion about this is at [this thread](https://groups.google.com/g/spack/c/2cExxjIvuOI).
+
+### Building parallel programs
+
+#### BLAS libraries and threads
+
+Spack defines `threads=[none,openmp,pthreads,tbb]` to specify thread support in BLAS libraries like `intel-mkl` or `openblas`, with the `threads=none` default. This means that by default the package built with the BLAS dependency will have the BLAS library linked in as sequential, even if `openmp` of this package is specified. To get around this, we need to explicitly list the `threads=openmp` in the BLAS dependency, for example:
+```
+spack install quantum-espresso+openmp ^intel-mkl threads=openmp
+```
 
 ### User space usage
 
