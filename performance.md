@@ -1,10 +1,10 @@
-#Performance observations on Zen2 and SKL with different uarch optimized Spack built binaries
+# Performance observations on Zen2 and SKL with different uarch optimized Spack built binaries
 
-##Gromacs
+## Gromacs
 
 Gromacs was picked because it is among a few Spack recipes that has explicit uarch directives.
 
-###Observations:
+### Observations:
 
 - Spack built uarch optimized binaries provide best results
 - hyperthreading helps
@@ -56,7 +56,7 @@ LD_PRELOAD comparison, SandyBridge
 off	on
 83.90	85.07
 
-###Recomendation
+### Recomendation
 
 Build 3 binaries, nehalem, sandybridge and skylake_avx512
 For Zen2 use sandybridge binary
@@ -65,7 +65,7 @@ Hardcode libfakeintel.so into the sandybridge binary
 /uufs/chpc.utah.edu/sys/installdir/amdmkl/bin/patchmkl.sh /uufs/chpc.utah.edu/sys/spack/linux-centos7-sandybridge/gcc-10.2.0/gromacs-2020.4-e6jluwefhuwdbcwctqp2gfdiepkh3jsg/bin/gmx_mpi
 ```
 
-###Installation
+### Installation
 ```
 spack install gromacs%gcc@10.2.0+lapack^intel-mkl threads=openmp target=nehalem
 spack install gromacs%gcc@10.2.0+lapack^intel-mkl threads=openmp target=sandybridge
@@ -78,7 +78,7 @@ NWCHEM was selected because it is expected to heavily utilize accelerated linear
 
 Runtime in seconds, lower is better.
 
-###Observations
+### Observations
 
 1. uarch optimized binaries have small effect on execution time (7% on zen2, 5% on skl wrt. nehalem build)
 
@@ -88,7 +88,7 @@ uarch binary	nehalem	nehldpreload	sb	sbldpreload	skl	sklldpreload	zen2	zen2ldpre
 zen2 node	1162	1156		1086	1089		1112	1142		1112	1142
 skl node	2201			2235			2098			2189	
 
-###Recomendation
+### Recomendation
 
 Build 3 binaries, nehalem, sandybridge and skylake-avx512
 For Zen2 use sandybridge binary
@@ -101,7 +101,7 @@ QE is also expected to have strong linear algebra dependency
 
 Runtime in seconds, lower is better.
 
-###Observations:
+### Observations:
 
 1. uarch optimized binaries have no effect on the Zen2 and about 5% improvement on SB and SKL over NEH
 
@@ -111,7 +111,7 @@ Runtime in seconds, lower is better.
 zen2_node	718	378		715	377		714	377
 skl_node	467			442	443		444	
 
-###Recomendation
+### Recomendation
 
 Build binaries, nehalem, sandybridge
 For Zen2 use sandybridge binary
@@ -120,7 +120,7 @@ Hardcode libfakeintel.so into the sandybridge binary
 for i in `ls /uufs/chpc.utah.edu/sys/spack/linux-centos7-sandybridge/gcc-8.3.0/quantum-espresso-6.6-nbtlug57rby5ejjinegl62ak4uagpmpj/*.x`; do /uufs/chpc.utah.edu/sys/installdir/amdmkl/bin/patchmkl.sh $i; done
 ```
 
-###Installation
+### Installation
 ```
 spack install quantum-espresso+openmp+epw+elpa hdf5=parallel ^intel-mkl threads=openmp target=nehalem
 spack install quantum-espresso+openmp+epw+elpa hdf5=parallel ^intel-mkl threads=openmp target=sandybridge
