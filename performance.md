@@ -130,9 +130,9 @@ Runtime in seconds, lower is better.
 
 ### Recomendation
 
-Build binaries, nehalem, sandybridge
-For Zen2 use sandybridge binary
-Hardcode libfakeintel.so into the sandybridge binary
+- Build binaries, nehalem, sandybridge
+- For Zen2 use sandybridge binary.
+- Hardcode libfakeintel.so into the sandybridge binary
 ```
 for i in `ls /uufs/chpc.utah.edu/sys/spack/linux-centos7-sandybridge/gcc-8.3.0/quantum-espresso-6.6-nbtlug57rby5ejjinegl62ak4uagpmpj/*.x`; do /uufs/chpc.utah.edu/sys/installdir/amdmkl/bin/patchmkl.sh $i; done
 ```
