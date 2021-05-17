@@ -123,9 +123,10 @@ Runtime in seconds, lower is better.
 
 2. LD_PRELOAD has a huge effect on the performance, which suggests that most of time is spent in the MKL routines
 
-		nehalem	nehldpreload	sb	sbldpreload	skl	sklldpreload
-zen2_node	718	378		715	377		714	377
-skl_node	467			442	443		444	
+|		|nehalem	|nehldpreload	|sb	|sbldpreload	|skl	|sklldpreload|
+|---            |---            |---            |---    |---            |---    |---         |
+|zen2_node	|718	        |378		|715	|377		|714	|377|
+|skl_node	|467		|	        |442	|443		|444	||
 
 ### Recomendation
 
