@@ -24,39 +24,52 @@ Zen2 64 CPU cores, HT off
 |ns/day	|72.26		|87.12		|78.91		|N/A|
 
 SKL 32 CPU cores, HT on				
-CPU	Nehalem	SandyBridge	Zen2	Skylake
-uarch	SSE4.2	AVX		AVX2	AVX512
-ns/day	35.89	41.58		44.19	51.65
+
+|CPU	|Nehalem	|SandyBridge	|Zen2	|Skylake|
+|---    |---            |---            |---            |---    |
+|uarch	|SSE4.2	        |AVX		|AVX2	|AVX512|
+|ns/day	|35.89	        |41.58		|44.19	|51.65|
 
 3. Hyperthreading slower on Zen2 with Zen2 optimized binary, faster with Intel optimized binaries:
 
 Zen 2 HT comparison				
-	Nehalem	SandyBridge	Zen2 MKL	Zen 2 OB
-HT	72.26	87.12		76.44		76.00
-no HT	67.24	85.07		78.91		70.98
+
+|	|Nehalem	|SandyBridge	|Zen2 MKL	|Zen 2 OB|
+|---    |---            |---            |---            |---    |
+|HT	|72.26	        |87.12		|76.44		|76.00|
+|no HT	|67.24	        |85.07		|78.91		|70.98|
 
 SKL HT comparison				
-	Nehalem	SandyBridge	Zen2 MKL	Zen 2 OB
-HT	35.89	41.58	44.19	51.65
-no HT	33.93	38.46	42.61	48.87
+
+|	|Nehalem	|SandyBridge	|Zen2 MKL	|Zen 2 OB|
+|---    |---            |---            |---            |---    |
+|HT	|35.89	        |41.58	        |44.19	        |51.65|
+|no HT	|33.93	        |38.46	        |42.61	        |48.87|
 
 4. OpenBLAS is slower than MKL on Zen2, but, close when HT is on
 
 5. Parallel scaling is about the same on Zen2 and SKL columns 8, 16, 32, 64 cores:
 Zen2:
-8	16	32	64
-1	2	4	8
-1.00	1.85	2.98	4.12
+
+|Cores          |8	|16	|32	|64|
+|---            |---    |---    |---    |---    |
+|Ideal sc.      |1	|2	|4	|8|
+|Actual sc.     |1.00	|1.85	|2.98	|4.12|
+
 SKL:
-8	16	32
-1	2	4
-1.00	1.81	2.79
+
+|Cores          |8	|16	|32	|
+|---            |---    |---    |---    |
+|Ideal sc.      |1	|2	|4	|
+|Actual sc.     |1.00	|1.81	|2.79
 
 6. MKLs LD_PRELOAD helps on Zen2:
 
-LD_PRELOAD comparison, SandyBridge	
-off	on
-83.90	85.07
+LD_PRELOAD comparison, SandyBridge
+
+|off	|on|
+|---	|---|
+|83.90	|85.07|
 
 ### Recomendation
 
@@ -86,9 +99,10 @@ Runtime in seconds, lower is better.
 
 2. MKL is not being used much since LD_PRELOAD trick does not have any effect on runtime.
 
-uarch binary	nehalem	nehldpreload	sb	sbldpreload	skl	sklldpreload	zen2	zen2ldpreload
-zen2 node	1162	1156		1086	1089		1112	1142		1112	1142
-skl node	2201			2235			2098			2189	
+|uarch binary	|nehalem	|nehldpreload	|sb	        |sbldpreload	|skl	|sklldpreload	|zen2	|zen2ldpreload
+|---            |---            |---            |---            |---            |---    |---            |---    |---|
+|zen2 node	|1162	        |1156		|1086	        |1089		|1112	|1142		|1112	|1142|
+|skl node	|2201		|	        |2235		|	        |2098	|		|2189   ||	
 
 ### Recomendation
 
