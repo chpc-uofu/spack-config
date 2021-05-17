@@ -101,8 +101,8 @@ Runtime in seconds, lower is better.
 
 |uarch binary	|nehalem	|nehldpreload	|sb	        |sbldpreload	|skl	|sklldpreload	|zen2	|zen2ldpreload
 |---            |---            |---            |---            |---            |---    |---            |---    |---|
-|zen2 node	|1162	        |1156		|1086	        |1089		|1112	|1142		|1112	|1142|
-|skl node	|2201		|	        |2235		|	        |2098	|		|2189   ||	
+|zen2 node	|1162	        |1156		|**1086**	        |1089		|1112	|1142		|1112	|1142|
+|skl node	|**2201**	|	        |**2235**	|	        |**2098**	|		|2189   ||	
 
 ### Recomendations
 
