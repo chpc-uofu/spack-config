@@ -125,8 +125,8 @@ Runtime in seconds, lower is better.
 
 |		|nehalem	|nehldpreload	|sb	|sbldpreload	|skl	|sklldpreload|
 |---            |---            |---            |---    |---            |---    |---         |
-|zen2_node	|718	        |378		|715	|377		|714	|377|
-|skl_node	|467		|	        |442	|443		|444	||
+|zen2_node	|718	        |378    	|715	|**377**	|714	|377|
+|skl_node	|**467**	|	        |442	|**443**	|444	||
 
 ### Recomendations
 
