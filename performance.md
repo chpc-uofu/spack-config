@@ -17,9 +17,9 @@ All results for benchMEM, ns/day = higher is better
 2. uarch optimized binaries are important, esp. for SKL:
 
 Zen2 64 CPU cores, HT off				
-CPU	Nehalem		SandyBridge	Zen2		Skylake
-uarch	SSE4.2, HT	AVX, HT		AVX2, no HT	AVX512
-ns/day	72.26		87.12		78.91		N/A
+|CPU	|Nehalem	|SandyBridge	|Zen2		|Skylake|
+|uarch	|SSE4.2, HT	|AVX, HT	|AVX2, no HT	|AVX512|
+|ns/day	|72.26		|87.12		|78.91		|N/A|
 
 SKL 32 CPU cores, HT on				
 CPU	Nehalem	SandyBridge	Zen2	Skylake
