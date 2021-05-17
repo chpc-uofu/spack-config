@@ -71,11 +71,11 @@ LD_PRELOAD comparison, SandyBridge
 |---	|---|
 |83.90	|85.07|
 
-### Recomendation
+### Recomendations
 
-Build 3 binaries, nehalem, sandybridge and skylake_avx512
-For Zen2 use sandybridge binary
-Hardcode libfakeintel.so into the sandybridge binary
+- Build 3 binaries, nehalem, sandybridge and skylake_avx512
+- For Zen2 use sandybridge binary
+- Hardcode libfakeintel.so into the sandybridge binary
 ```
 /uufs/chpc.utah.edu/sys/installdir/amdmkl/bin/patchmkl.sh /uufs/chpc.utah.edu/sys/spack/linux-centos7-sandybridge/gcc-10.2.0/gromacs-2020.4-e6jluwefhuwdbcwctqp2gfdiepkh3jsg/bin/gmx_mpi
 ```
@@ -104,11 +104,11 @@ Runtime in seconds, lower is better.
 |zen2 node	|1162	        |1156		|1086	        |1089		|1112	|1142		|1112	|1142|
 |skl node	|2201		|	        |2235		|	        |2098	|		|2189   ||	
 
-### Recomendation
+### Recomendations
 
-Build 3 binaries, nehalem, sandybridge and skylake-avx512
-For Zen2 use sandybridge binary
-No need to do anything with LD_PRELOAD
+- Build 3 binaries, nehalem, sandybridge and skylake-avx512
+- For Zen2 use sandybridge binary
+- No need to do anything with LD_PRELOAD
 
 ## Quantum Espresso
 
@@ -128,7 +128,7 @@ Runtime in seconds, lower is better.
 |zen2_node	|718	        |378		|715	|377		|714	|377|
 |skl_node	|467		|	        |442	|443		|444	||
 
-### Recomendation
+### Recomendations
 
 - Build binaries, nehalem, sandybridge
 - For Zen2 use sandybridge binary.
