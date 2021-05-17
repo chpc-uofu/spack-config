@@ -19,6 +19,7 @@ All results for benchMEM, ns/day = higher is better
 Zen2 64 CPU cores, HT off	
 			
 |CPU	|Nehalem	|SandyBridge	|Zen2		|Skylake|
+|---    |---            |---            |---            |---    |
 |uarch	|SSE4.2, HT	|AVX, HT	|AVX2, no HT	|AVX512|
 |ns/day	|72.26		|87.12		|78.91		|N/A|
 
