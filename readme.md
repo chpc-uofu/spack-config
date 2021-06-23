@@ -177,6 +177,34 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
 
 !!! Need to also `add_property("arch","gpu")` to all the GPU built modules - likely through the module template
 
+#### Template modification
+
+The Lmod module template is at `share/spack/templates/modules/modulefile.lua`. Original code for automatic loading of dependencies is:
+```
+{% block autoloads %}
+{% for module in autoload %}
+if not isloaded("{{ module }}") then
+{% if verbose %}
+    LmodMessage("Autoloading {{ module }}")
+{% endif %}
+    load("{{ module }}")
+end
+{% endfor %}
+{% endblock %}
+```
+We prefer `depends_on()` since that automatically unloads the dependent modules, so, we change this to:
+```
+{% block autoloads %}
+{% for module in autoload %}
+{% if verbose %}
+    LmodMessage("Autoloading {{ module }}")
+{% endif %}
+depends_on("{{ module }}")
+{% endfor %}
+{% endblock %}
+```
+
+
 #### Code modification
 
 Even with the use of projections, as of ver. 0.16, parts of the path are hard coded, so, we had to make a small change to [lib/spack/spack/modules/lmod.py](https://github.com/spack/spack/blob/develop/lib/spack/spack/modules/lmod.py). The original code builds the module file path at line 244 as:
@@ -278,8 +306,54 @@ with
             return writer.layout.use_name[writer.layout.use_name.rfind("/",0,lastslash-1)+1:]
 ```
 
+##### Dependencies modification
 
+When a Spack generated module has a dependency, by default the target is a part of the module name, e.g. ```linux-centos7-nehalem/python/3.8.6```. This has to change to ```python/3.8.6```, which is done in ```common.py``` at ca. line 270, replacing:
+```
+    def _create_module_list_of(self, what):
+        m = self.conf.module
+        name = self.conf.name
+        return [m.make_layout(x, name).use_name
+                for x in getattr(self.conf, what)]
+```
 
+with
+```
+    def _create_module_list_of(self, what):
+        m = self.conf.module
+        retlist = []
+        for x in getattr(self.conf, what):
+          orgname = m.make_layout(x).use_name
+          myname = re.sub(r'^.*?/', '/', orgname)[1:]
+          print("WARNING - changing dependent module from %s to %s"%(orgname,myname))
+          retlist.append(myname)
+        return retlist
+```
+
+Another modification in this regard is in the module template file, ```share/spack/templates/modules/modulefile.lua```, where we replace ```load``` with ```depends_on``` so that the dependent module gets automatically unloaded.
+```
+{% block autoloads %}
+{% for module in autoload %}
+if not isloaded("{{ module }}") then
+{% if verbose %}
+    LmodMessage("Autoloading {{ module }}")
+{% endif %}
+    load("{{ module }}")
+end
+{% endfor %}
+{% endblock %}
+```
+with
+```
+{% block autoloads %}
+{% for module in autoload %}
+{% if verbose %}
+    LmodMessage("Autoloading {{ module }}")
+{% endif %}
+depends_on("{{ module }}")
+{% endfor %}
+{% endblock %}
+```
 #### Spack generated module hierarchy layout
 
 The hierarchy layout is thus as follows:
@@ -675,10 +749,10 @@ cp -r /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/* etc/spack
 ```
 cd /uufs/chpc.utah.edu/sys/installdir/spack/0.16.1
 vim -d lib/spack/spack/modules/lmod.py ../0.16.0/lib/spack/spack/modules
+vim -d lib/spack/spack/modules/common.py ../0.16.0/lib/spack/spack/modules
 ```
 
-
-- by default Spack includes path to all its lmod modules in the setup-env.csh - comment that out:
+- by default Spack includes path to all its TCL modules in the setup-env.csh - comment that out:
 ```/uufs/chpc.utah.edu/sys/installdir/spack/0.16.1/share/spack/setup-env.csh```
 ```
 # Set up module search paths in the user environment
@@ -692,3 +766,30 @@ vim -d lib/spack/spack/modules/lmod.py ../0.16.0/lib/spack/spack/modules
 #end
 ```
 Similar will need to be done for the other shell init scripts, e.g. ```setup-env.sh```.
+
+
+## Updating/fixing Spack package
+
+When you feel like the fix you a Spack package may benefit the whole community, submit it as a pull request.
+
+First, make a fork of Spack and clone it to your workstation:
+1. Fork the [https://github.com/spack/spack](https://github.com/spack/spack) into your github page.
+2. Clone it to your workstation
+```
+git clone https://github.com/mcuma/spack
+```
+
+Now you are ready to make the change you want and create the pull request:
+1. Create a new branch in your Spack cloned repo
+```
+git checkout -b packagename-my-fix
+```
+2. Modify the package spec that you are fixing
+3. Commit the change and push it to the GitHub
+```
+git commit -am "Meaningful description of the change"
+git push origin packagename-my-fix
+```
+4. On the GitHub page, create the new pull request from the new branch that you have just pushed.
+
+The Spack pull request workflow is that first it needs to be reviewed by a person that has write access to the Spack repo. Then Continuous Integration scripts will run to check the change. They are faily strict with syntax and style of the Python code so be aware of that. Once the CI tests pass, it is up to the maintainer to accept the pull request. Sometime they take time to do that.

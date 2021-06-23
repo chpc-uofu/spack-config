@@ -142,3 +142,4 @@ for i in `ls /uufs/chpc.utah.edu/sys/spack/linux-centos7-sandybridge/gcc-8.3.0/q
 spack install quantum-espresso+openmp+epw+elpa hdf5=parallel ^intel-mkl threads=openmp target=nehalem
 spack install quantum-espresso+openmp+epw+elpa hdf5=parallel ^intel-mkl threads=openmp target=sandybridge
 ```
+

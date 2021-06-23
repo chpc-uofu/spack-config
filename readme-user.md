@@ -24,7 +24,7 @@ To run spack in user space, one needs to tell it where to write all its files (t
 ```mkdir -p $HOME/.spack```
 
 2. In `~/.spack`, put an user `config.yaml` which is the same as the one in `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack`, i.e.
-```cp /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack ~/.spack```
+```cp /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/config.yaml ~/.spack```
 
 And then modify the following in this file:
 ```
