@@ -41,7 +41,7 @@ This will cause Spack to put the built programs and module files to the user dir
 
 Note: To make the Spack generated module files available, one needs to `module use $HOME/spack/local/modules`
 
-3. Point to CHPC Spack built programs via the `~/.spack/upstream.yaml`:
+3.  To import the CHPC Spack built programs, create a new file `~/.spack/upstreams.yaml`:
 ```
 upstreams:
   chpc-instance:

@@ -468,6 +468,8 @@ Note: The build files will be by default stored in `/scratch/local/$user/spack-s
 
 ```spack find -dlv <package>``` - display installed packages (`-dlv` will print dependencies and build options)
 
+```spack module lmod refresh <package>``` - generate module file for the package that was installed - with the Spack module configurations for some reason module does not get generated during the install.
+
 #### Dependencies:
 `%` - compiler, e.g. `%intel`
 
