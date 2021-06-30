@@ -464,6 +464,8 @@ ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux
 
 ```spack install <package> <options>``` - install the package. NOTE - by default all CPU cores are used so on interactive nodes, use the `-j N` option to limit number of parallel build processes.
 
+Note: By default Spack chooses the CPU microarchitecture where it runs, e.g. ```linux-centos7-sandybridge``` for ```kingspeak```, which may not run on all CHPC nodes. To build a generic CPU package, use the ```target=nehalem``` install option.
+
 Note: The build files will be by default stored in `/scratch/local/$user/spack-stage`, followed by `~/.spack/stage`, followed by `$TEMPDIR`. To use a different directory, use the `-C` flag, e.g. `spack -C $HOME/spack install <package> <options>`.
 
 ```spack find -dlv <package>``` - display installed packages (`-dlv` will print dependencies and build options)
