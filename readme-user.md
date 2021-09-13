@@ -63,6 +63,11 @@ source $SPACK_ROOT/share/spack/setup-env.sh
 export PATH=$SPACK_ROOT/bin:$PATH
 ```
 
+Or, even easier, we created a module for Spack:
+```
+module load spack
+```
+
 This needs to be done every time one uses Spack, so, it may be useful to place it in `custom.csh` or `custom.sh`.
 
 ## Checking that all is good
