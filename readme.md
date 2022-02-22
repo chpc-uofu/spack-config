@@ -783,7 +783,7 @@ Similar will need to be done for the other shell init scripts, e.g. ```setup-env
 
 ## Updating/fixing Spack package
 
-When you feel like the fix you a Spack package may benefit the whole community, submit it as a pull request.
+When you feel like the fix you did to a Spack package may benefit the whole community, submit it as a pull request.
 
 First, make a fork of Spack and clone it to your workstation:
 1. Fork the [https://github.com/spack/spack](https://github.com/spack/spack) into your github page.
