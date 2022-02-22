@@ -175,8 +175,13 @@ To get the module names/versions to be consitent with CHPC namings, we had to ad
           '{name}_ROOT': '{prefix}'
 ```
 
-!!! Need to also `add_property("arch","gpu")` to all the GPU built modules - likely through the module template
-
+- to add the `add_property("arch","gpu")`, we modify the template file, `share/spack/templates/modules/modulefile.lua`, to test if `+cuda` variant is on, in the footer of the template:
+```
+{% if '+cuda' in spec.variants.__str__() %}
+add_property("arch","gpu")
+{% endif %}
+```
+Here note that the `spec.variants` is an object that contains all the variants, but we do a pattern match in the full variant string, so need to wrap it around the `__str__()` function.
 #### Template modification
 
 The Lmod module template is at `share/spack/templates/modules/modulefile.lua`. Original code for automatic loading of dependencies is:
@@ -752,8 +757,9 @@ cp -r /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/* etc/spack
 - bring in the changes of the Lmod module files generation
 ```
 cd /uufs/chpc.utah.edu/sys/installdir/spack/0.16.1
-vim -d lib/spack/spack/modules/lmod.py ../0.16.0/lib/spack/spack/modules
-vim -d lib/spack/spack/modules/common.py ../0.16.0/lib/spack/spack/modules
+vim -d lib/spack/spack/modules/lmod.py ../0.16.2/lib/spack/spack/modules
+vim -d lib/spack/spack/modules/common.py ../0.16.2/lib/spack/spack/modules
+vim -d share/spack/templates/modules/modulefile.lua ../0.16.2/share/spack/templates/modules
 ```
 
 - by default Spack includes path to all its TCL modules in the setup-env.csh - comment that out:
@@ -771,6 +777,7 @@ vim -d lib/spack/spack/modules/common.py ../0.16.0/lib/spack/spack/modules
 ```
 Similar will need to be done for the other shell init scripts, e.g. ```setup-env.sh```.
 
+- remove the ```etc/spack/defaults/modules.yaml``` as it gets used over the customized ```etc/spack/modules.yaml```. Verify the correct modules config by ```spack config blame modules```.
 
 ## Updating/fixing Spack package
 
