@@ -32,6 +32,8 @@
     + [Debugging spack](#debugging-spack)
   * [Plan:](#plan-)
   * [Tidbits](#tidbits)
+  * [Update instructions](#update-instructions)
+  * [Updating/fixing Spack package](#updating/fixing-spack-package)
 
 # Spack package manager at CHPC
 
