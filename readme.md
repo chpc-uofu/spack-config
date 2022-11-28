@@ -53,7 +53,9 @@ Install from Github (may need to version in the future so may need to have own f
 
 `git clone https://github.com/spack/spack.git`
 
-Basic setup (to be put to hpcapps .tcshrc)
+Create a module file (see update instructions below), and then load the module, `module load spack`
+
+Alternatively, to explicitly set up the environment, for tcsh:
 ```
 setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
 source $SPACK_ROOT/share/spack/setup-env.csh
@@ -443,21 +445,14 @@ Test build the code (if the `prefix` is not correct, the build will crash here)
 
 i.e. build predefined packages
 
-### Source Spack
+### Load the Spack module
 
-if not done in .tcshrc
 ```
-setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
-source $SPACK_ROOT/share/spack/setup-env.csh
-setenv PATH $SPACK_ROOT/bin:$PATH
-ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
+module load spack
 ```
-for bash:
+or for a specific version
 ```
-export SPACK_ROOT=/uufs/chpc.utah.edu/sys/installdir/spack/spack
-source $SPACK_ROOT/share/spack/setup-env.sh
-export PATH=$SPACK_ROOT/bin:$PATH
-ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux-centos7-nehalem
+module load spack/0.19
 ```
 
 ### Basic installation workflow
@@ -467,11 +462,13 @@ ml use /uufs/chpc.utah.edu/sys/modulefiles/spack/linux-centos7-x86_64/Core/linux
 
 ```spack info <package>``` - information about package versions, variants, dependencies
 
- ```spack spec <package> <options>``` - see to be installed version/compiler/dependencies
+```spack spec -I <package> <options>``` - see to be installed version/compiler/dependencies
 
 ```spack install <package> <options>``` - install the package. NOTE - by default all CPU cores are used so on interactive nodes, use the `-j N` option to limit number of parallel build processes.
 
-Note: By default Spack chooses the CPU microarchitecture where it runs, e.g. ```linux-centos7-sandybridge``` for ```kingspeak```, which may not run on all CHPC nodes. To build a generic CPU package, use the ```target=nehalem``` install option.
+Note: By default Spack chooses the CPU microarchitecture where it runs, e.g. ```linux-centos7-sandybridge``` for ```kingspeak```, which may not run on all CHPC nodes. To build a generic CPU package, use the ```target=nehalem``` install option. At this point we almost always use the generic build, i.e.
+```spack spec -I <package> <options> target=nehalem``` 
+```spack install <package> <options> target=nehalem```
 
 Note: The build files will be by default stored in `/scratch/local/$user/spack-stage`, followed by `~/.spack/stage`, followed by `$TEMPDIR`. To use a different directory, use the `-C` flag, e.g. `spack -C $HOME/spack install <package> <options>`.
 
@@ -484,14 +481,34 @@ Note: The build files will be by default stored in `/scratch/local/$user/spack-s
 
 `@` - version, e.b. `%intel@2018.0.128`
 
+Most of the packages are built either with the `gcc%8.5.0` RL8 system compiler, and with either `intel-oneapi-mpi@2021.1.1` (newer versions stall on the AMD nodes with some codes) or with the latest `openmpi`.
+
+For example, to build with `intel-oneapi-mpi`:
+```
+spack install gromacs@2022.3%gcc@8.5.0+cuda+lapack+plumed target=nehalem ^intel-oneapi-mkl ^intel-oneapi-mpi@2021.1.1
+```
+
+`openmpi` requires some more options to force use of the UCX middleware that works correctly with InfiniBand:
+```
+spack spec -I abyss%gcc@8.5.0 target=nehalem ^openmpi%gcc@8.5.0 fabrics=ucx +cxx+internal-hwloc+thread_multiple schedulers=slurm +legacylaunchers ^ucx +mlx5_dv+verbs+ud+dc+rc+cma
+```
+
 #### Build a package with dependency built with a different compiler:
 ```spack install openmpi%pgi ^libpciaccess%gcc```
+we don't do this very often, if at all.
 
 #### External packages (not directly downloadable)
 
 Use (mirror)[https://spack.readthedocs.io/en/latest/basic_usage.html#non-downloadable-tarballs].
 
-... more to be added
+E.g for Amber:
+```
+cd /uufs/chpc.utah.edu/sys/spack/mirror/amber
+```
+download the Amber tarball if it's not there yet, modify the Spack spec file if this particular version is not in it, and then
+```
+spack spec -I amber@20.20%gcc@8.5.0 +mpi +python target=nehalem ^py-setuptools@57.4.0 ^py-jupyter-client@6.1.12 ^intel-oneapi-mpi@2021.1.1
+```
 
 #### Examples
 `spack install hpl%intel` - install HPL with default version of Intel compiler and default BLAS (MKL) and MPI (Intel MPI).
@@ -755,6 +772,7 @@ cd 0.16.1
 ```
 cp -r /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/* etc/spack
 ```
+also diff these files with the files in `etc/spack/default` to see what changes to them were made in the new version.
 
 - bring in the changes of the Lmod module files generation
 ```
@@ -780,6 +798,17 @@ vim -d share/spack/templates/modules/modulefile.lua ../0.16.2/share/spack/templa
 Similar will need to be done for the other shell init scripts, e.g. ```setup-env.sh```.
 
 - remove the ```etc/spack/defaults/modules.yaml``` as it gets used over the customized ```etc/spack/modules.yaml```. Verify the correct modules config by ```spack config blame modules```.
+
+- create module file for the new version by copying previous version, and changing the `version` to new version
+  also module load and unload, and then check `env` in bash and tcsh, and `declare -f` to see if some new environment variable or shell function has been added to the new Spack version. If so, add them to the `unset` in the module file.
+
+- sometimes Spack updates change `spack` objects hierarchy or syntax, which has a two-fold implication:
+1. The `chpc` and `chpc-updated` spack recipes use old incompatible spack object methods, which results in various semi-cryptic errors. As of 0.19 this required us to create a specific repository for the version 0.19. The workaround is to have separate repositories for different Spack versions.
+```
+spack repo create /uufs/chpc.utah.edu/sys/spack/repos/v19/chpc chpc
+spack repo add /uufs/chpc.utah.edu/sys/spack/repos/v19/chpc
+```
+2. The Spack database in `/uufs/chpc.utah.edu/sys/spack/.spack-db` points to repositories (also called namespaces) which are incompatible in #1, causing further errors. The workaround is to move away the old .spack-db and create a new one, though this necessitates to re-build all the dependent packages.
 
 ## Updating/fixing Spack package
 
