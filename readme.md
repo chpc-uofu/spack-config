@@ -770,9 +770,14 @@ cd 0.16.1
 
 - copy config files from the previous version
 ```
-cp -r /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/* etc/spack
+cp /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/* etc/spack
 ```
 also diff these files with the files in `etc/spack/default` to see what changes to them were made in the new version.
+
+- copy the licenses
+```
+cp -r /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/licenses etc/spack
+```
 
 - bring in the changes of the Lmod module files generation
 ```
@@ -781,6 +786,7 @@ vim -d lib/spack/spack/modules/lmod.py ../0.16.2/lib/spack/spack/modules
 vim -d lib/spack/spack/modules/common.py ../0.16.2/lib/spack/spack/modules
 vim -d share/spack/templates/modules/modulefile.lua ../0.16.2/share/spack/templates/modules
 ```
+
 
 - by default Spack includes path to all its TCL modules in the setup-env.csh - comment that out:
 ```/uufs/chpc.utah.edu/sys/installdir/spack/0.16.1/share/spack/setup-env.csh```
