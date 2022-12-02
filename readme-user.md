@@ -23,7 +23,7 @@ To run spack in user space, one needs to tell it where to write all its files (t
 2. If not already created, make a `~/.spack` directory where the configuration files go:
 ```mkdir -p $HOME/.spack```
 
-2. In `~/.spack`, put an user `config.yaml` which is the same as the one in `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack`, i.e.
+3. In `~/.spack`, put an user `config.yaml` which is the same as the one in `/uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack`, i.e.
 ```cp /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/config.yaml ~/.spack```
 
 And then modify the following in this file:
@@ -37,38 +37,32 @@ And then modify the following in this file:
   module_roots:
     lmod: $HOME/spack/local/modules
 ```
+4. Create a new file `~/.spack/modules.yaml` and there put:
+```
+modules:
+  default:
+    roots:
+      lmod: $HOME/spack/local/modules
+```
 This will cause Spack to put the built programs and module files to the user directory `$HOME/spack/local/builds` and `$HOME/spack/local/modules`.
 
-Note: To make the Spack generated module files available, one needs to `module use $HOME/spack/local/modules`
+Note: To make the Spack generated module files available, one needs to `module use $HOME/spack/local/modules/Core/linux-rocky8-nehalem`
 
-3.  To import the CHPC Spack built programs, create a new file `~/.spack/upstreams.yaml`:
+4.  To import the CHPC Spack built programs, create a new file `~/.spack/upstreams.yaml`:
 ```
 upstreams:
   chpc-instance:
-    install_tree: /uufs/chpc.utah.edu/sys/spack
+    install_tree: /uufs/chpc.utah.edu/sys/spack/v019
 ```
 
 ## Activating CHPC installed Spack
 
-For the tcsh shell:
-```
-setenv SPACK_ROOT /uufs/chpc.utah.edu/sys/installdir/spack/spack
-source $SPACK_ROOT/share/spack/setup-env.csh
-setenv PATH $SPACK_ROOT/bin:$PATH
-```
-for bash shell:
-```
-export SPACK_ROOT=/uufs/chpc.utah.edu/sys/installdir/spack/spack
-source $SPACK_ROOT/share/spack/setup-env.sh
-export PATH=$SPACK_ROOT/bin:$PATH
-```
-
-Or, even easier, we created a module for Spack:
+Load the Spack module:
 ```
 module load spack
 ```
 
-This needs to be done every time one uses Spack, so, it may be useful to place it in `custom.csh` or `custom.sh`.
+This needs to be done every time one uses Spack in a fresh terminal (like using any other module).
 
 ## Checking that all is good
 
@@ -77,29 +71,32 @@ When this is set up, one can check if the package is using the upstream repo by 
 $ spack spec -I octave target=nehalem
 Input spec
 --------------------------------
- -   octave arch=linux-None-nehalem
+ -   octave arch=None-None-nehalem
 
 Concretized
 --------------------------------
-[-]  octave@6.2.0%gcc@8.3.0~arpack~curl~fftw~fltk~fontconfig~freetype~gl2ps~glpk~gnuplot~hdf5~jdk~llvm~magick~opengl~qhull~qrupdate~qscintilla~qt+readline~suitesparse~zlib arch=linux-centos7-nehalem
-[^]      ^intel-mkl@2020.3.279%gcc@8.3.0~ilp64+shared threads=none arch=linux-centos7-nehalem
-[^]          ^cpio@2.13%gcc@8.3.0 arch=linux-centos7-nehalem
-[^]      ^pcre@8.44%gcc@8.3.0~jit+multibyte+utf arch=linux-centos7-nehalem
-[^]      ^pkgconf@1.7.3%gcc@8.3.0 arch=linux-centos7-nehalem
-[^]      ^readline@8.0%gcc@8.3.0 arch=linux-centos7-nehalem
-[^]          ^ncurses@6.2%gcc@8.3.0~symlinks+termlib arch=linux-centos7-nehalem
+ -   octave@7.3.0%gcc@8.5.0~arpack+bz2~curl~fftw~fltk~fontconfig~freetype~gl2ps~glpk~gnuplot~hdf5~jdk~llvm~magick~opengl~qhull~qrupdate~qscintilla~qt+readline~suitesparse~zlib build_system=autotools arch=linux-rocky8-nehalem
+[^]      ^bzip2@1.0.6%gcc@8.5.0~debug~pic+shared build_system=generic arch=linux-rocky8-x86_64
+[^]      ^intel-mkl@2020.4.304%gcc@8.5.0~ilp64+shared build_system=generic threads=none arch=linux-rocky8-nehalem
+[^]          ^cpio@2.12%gcc@8.5.0 build_system=autotools arch=linux-rocky8-x86_64
+ -       ^pcre@8.45%gcc@8.5.0~jit+multibyte+utf build_system=autotools arch=linux-rocky8-nehalem
+[^]      ^pkgconf@1.4.2%gcc@8.5.0 build_system=autotools arch=linux-rocky8-x86_64
+ -       ^readline@8.1.2%gcc@8.5.0 build_system=autotools arch=linux-rocky8-nehalem
+[^]          ^ncurses@6.1.20180224%gcc@8.5.0~symlinks+termlib abi=6 build_system=autotools arch=linux-rocky8-x86_64
+ -       ^texinfo@6.5%gcc@8.5.0 build_system=autotools patches=12f6edb,1732115 arch=linux-rocky8-x86_64
+
 ```
 The `[^]` denotes packages used from upstream, `[-]` packages that are missing in the upstream.
 
 Now we can build the new program which will then store the build in `$HOME/spack/local/builds`
 ```
-spack install octave target=nehalem
+spack install octave~readline target=nehalem
 ```
 
-Because the `gcc/8.3.0` is not the default system compiler module files built this way can be made active with
+Because the system default `gcc/8.5.0` module does not have the user modules path, we need to add it with `module use`.
 ```
-module load gcc/8.3.0
-module use $HOME/spack/local/modules/linux-centos7-x86_64/Compiler/linux-centos7-nehalem/gcc/8.3.0
+module load gcc/8.5.0
+module use $HOME/spack/local/modules/linux-rocky8-x86_64/Core
 ```
 
 NOTE: You can put the configure files to other directory than `~/.spack`, but then you will need to point to this directory with the `-C` option of the `spack` commands. More details on precendence of config file locations is [here](https://spack.readthedocs.io/en/latest/configuration.html#scope-precedence).
