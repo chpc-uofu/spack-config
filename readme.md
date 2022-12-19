@@ -826,6 +826,14 @@ cp /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/* etc/spack
 ```
 also diff these files with the files in `etc/spack/default` to see what changes to them were made in the new version and move in the new options/changes.
 
+Since the .spack-db and ~/.spack/cache can be incompatible between versions, modify the following parts of `config.yaml`:
+```
+  install_tree:
+    root: /uufs/chpc.utah.edu/sys/spack/v019
+...
+  misc_cache: ~/.spack/cache/v019
+```
+
 - copy the licenses
 ```
 cp -r /uufs/chpc.utah.edu/sys/installdir/spack/spack/etc/spack/licenses etc/spack
