@@ -23,6 +23,8 @@
       - [Adding new version of an existing package](#adding-new-version-of-an-existing-package)
       - [Troubleshooting](#troubleshooting)
       - [Caveats](#caveats)
+    + [Modifying the spec file](modifying-the-spec-file)
+    + [Using Spack installed dependencies ](using-spack-installed-dependencies)
     + [CPU optimized builds](#cpu-optimized-builds)
     + [User space usage](#user-space-usage)
   * [Things to discuss at CHPC](#things-to-discuss-at-chpc)
@@ -601,6 +603,17 @@ then we edit the spec file, `spack edit lammps` and change the `supported packag
 ```
 
 Since we did not added all the user packages (omitted ones with extra dependencies or build parameters), we did not push these changes upstream.
+
+NOTE: Spack 0.19 has implemented the changes discussed above in a more consistent way so we are using that now.
+
+### Using Spack installed dependencies
+
+Sometimes we need to hand install programs which have dependencies that were installed with Spack. If these hand installed programs depend on Compiler and MPI, put these modules into the `/uufs/chpc.utah.edu/sys/modulefiles/CHPC-r8/MPI` with the respective compiler and MPI. For example, for `intel-oneapi-compilers/2021.1.1` and `intel-oneapi-mpi/2021.1.1`, this directory would be `/uufs/chpc.utah.edu/sys/modulefiles/CHPC-r8/MPI/intel/2021.4/intel-oneapi-mpi/2021.1.1`.
+
+The MPI module needs to be modified to add this `MODULEPATH` to it, for example:
+```
+prepend_path("MODULEPATH", "/uufs/chpc.utah.edu/sys/modulefiles/CHPC-r8/MPI/intel/2021.4/intel-oneapi-mpi/2021.1.1")
+```
 
 ### CPU optimized builds
 
