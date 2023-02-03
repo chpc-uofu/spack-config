@@ -637,6 +637,37 @@ Note that at the moment, Spack is only adding options that have to do with the i
 
 Detailed discussion about this is at [this thread](https://groups.google.com/g/spack/c/2cExxjIvuOI).
 
+#### Building CPU uarch optimized binaries
+
+Many programs depend on lower level optimized libraries like the Intel MKL, so, they don't exhibit much if any speedup when built with CPU optimizations. Example of that would be the HPL or VASP. For those it is sufficient to use a single architecture build, which as of 2022 is `nehalem`. 
+
+Other programs do benefit from CPU optimized build. For these cases we build at least a binary for the Intel Skylake, `skylake_avx512` and AMD Zen2 architectures, `zen2`. For example, for GROMACS:
+```
+spack install gromacs@2022.3%gcc@11.2.0~cuda+lapack+plumed target=zen2 ^intel-oneapi-mkl ^openmpi@4.1.4 fabrics=ucx +cxx+internal-hwloc schedulers=slurm +legacylaunchers ^ucx +mlx5_dv+verbs+ud+dc+rc+cma
+```
+as compared to the generic build:
+```
+spack install gromacs@2022.3%gcc@11.2.0~cuda+lapack+plumed target=nehalem ^intel-oneapi-mkl ^openmpi@4.1.4 fabrics=ucx +cxx+internal-hwloc schedulers=slurm +legacylaunchers ^ucx +mlx5_dv+verbs+ud+dc+rc+cma
+```
+
+#### Adding to environment modules
+
+To include these CPU optimized builds to the modules, we need manually add the paths to where Spack puts these module files to the underlying Compiler or MPI modules, depending on the CPU architecture.
+
+The CPU architecture is defined by environment variable `CPUARCH` that's pre-defined on each node. For example, an `openmpi/4.1.4` module is modified as follows to include programs built with this OpenMPI and optimized for either the Intel or AMD Notchpeak nodes.
+```
+local arch = os.getenv("CPUARCH")
+if arch ~= nil then
+  if (arch == "skylake_avx512") or (arch == "cascadelake") or (arch == "icelake") then
+    local mdir = "/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-rocky8-x86_64/MPI/linux-rocky8-skylake_avx512/gcc/11.2.0/openmpi/4.1.4"
+    prepend_path("MODULEPATH",mdir)
+  elseif (arch == "zen2") or (arch == "zen3")  then
+    local mdir = "/uufs/chpc.utah.edu/sys/modulefiles/spack/linux-rocky8-x86_64/MPI/linux-rocky8-zen2/gcc/11.2.0/openmpi/4.1.4"
+    prepend_path("MODULEPATH",mdir)
+  end
+end
+```
+
 ### Building programs
 
 #### BLAS libraries and threads
