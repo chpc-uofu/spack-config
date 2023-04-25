@@ -668,6 +668,8 @@ if arch ~= nil then
 end
 ```
 
+In theory this could be added to the Spack module template file, `share/spack/templates/modules/modulefile.lua`, to be generated for each Compiler and MPI. 
+
 ### Building programs
 
 #### BLAS libraries and threads
