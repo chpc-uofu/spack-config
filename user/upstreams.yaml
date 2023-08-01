@@ -1,0 +1,3 @@
+upstreams:
+  chpc-instance:
+    install_tree: /uufs/chpc.utah.edu/sys/spack/v019

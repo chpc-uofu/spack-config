@@ -1,0 +1,6 @@
+  # These are configurations for the module set named "default"
+modules:
+  default:
+    # Where to install modules
+    roots:
+      lmod: $HOME/spack/local/modules
