@@ -36,7 +36,7 @@
   * [Tidbits](#tidbits)
   * [Update instructions](#update-instructions)
   * [Updating/fixing Spack package](#updating-fixing-spack-package)
-  * [Spack 1.x changes](#spack-1.x-changes)
+  * [Spack 1 changes](#spack-1-changes)
 
 # Spack package manager at CHPC
 
@@ -950,7 +950,7 @@ git push origin packagename-my-fix
 
 The Spack pull request workflow is that first it needs to be reviewed by a person that has write access to the Spack repo. Then Continuous Integration scripts will run to check the change. They are faily strict with syntax and style of the Python code so be aware of that. Once the CI tests pass, it is up to the maintainer to accept the pull request. Sometime they take time to do that.
 
-## Spack 1.x changes
+## Spack 1 changes
 
 - compiler is a package = to request building with certain compiler, add it at the end of the line as e.g. `%c,cxx=gcc@8.5.0`
 - site-wide config files are at `etc/spack/site` (new in 1.1). User configs in `~/.spack` still take precedence over the site configs.
