@@ -948,3 +948,21 @@ git push origin packagename-my-fix
 4. On the GitHub page, create the new pull request from the new branch that you have just pushed.
 
 The Spack pull request workflow is that first it needs to be reviewed by a person that has write access to the Spack repo. Then Continuous Integration scripts will run to check the change. They are faily strict with syntax and style of the Python code so be aware of that. Once the CI tests pass, it is up to the maintainer to accept the pull request. Sometime they take time to do that.
+
+## Spack 1.x changes
+
+- compiler is a package = to request building with certain compiler, add it at the end of the line as e.g. `%c,cxx=gcc@8.5.0`
+- site-wide config files are at `etc/spack/site` (new in 1.1). User configs in `~/.spack` still take precedence over the site configs.
+- package definition are a separate repo, controlled in `etc/spack/site/repos.yaml`:
+```
+    git: https://github.com/spack/spack-packages.git
+    branch: releases/v2025.11
+    destination: /uufs/chpc.utah.edu/sys/spack/v10/spack_repo/builtin
+```
+  to update, change the branch name, and run `spack repo update`
+  if update does not work due to some packages being updated, stash them as 
+  `git stash push -m "Changes/updates to 2025.07 release"`
+  `/uufs/chpc.utah.edu/sys/spack/v10/spack_repo/builtin` will keep the old branches, plus the new branch, it should be easy to switch between the package branches with `git checkout` if needed - though most likely we'll stick to the latest branch.
+- two places have changed format of databases, so new locations are needed
+  `/uufs/chpc.utah.edu/sys/spack/v10` - installed packages database
+  `~/.spack/cache/v10` - cache directory, includes package index

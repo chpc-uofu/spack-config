@@ -1,0 +1,186 @@
+# -------------------------------------------------------------------------
+# This is the default configuration for Spack's module file generation.
+#
+# Settings here are versioned with Spack and are intended to provide
+# sensible defaults out of the box. Spack maintainers should edit this
+# file to keep it current.
+#
+# Users can override these settings by editing the following files.
+#
+# Per-spack-instance settings (overrides defaults):
+#   $SPACK_ROOT/etc/spack/modules.yaml
+#
+# Per-user settings (overrides default and site settings):
+#   ~/.spack/modules.yaml
+# -------------------------------------------------------------------------
+modules:
+  # This maps paths in the package install prefix to environment variables
+  # they should be added to. For example, <prefix>/bin should be in PATH.
+  prefix_inspections:
+    ./bin:
+      - PATH
+    ./man:
+      - MANPATH
+    ./share/man:
+      - MANPATH
+    ./share/aclocal:
+      - ACLOCAL_PATH
+    ./lib:
+      - LIBRARY_PATH
+      - LD_LIBRARY_PATH
+    ./lib64:
+      - LIBRARY_PATH
+      - LD_LIBRARY_PATH
+    ./include:
+      - C_INCLUDE_PATH
+      - CPLUS_INCLUDE_PATH
+      # The INCLUDE env variable specifies paths to look for
+      # .mod file for Intel Fortran compilers
+      - INCLUDE
+    ./lib/pkgconfig:
+      - PKG_CONFIG_PATH
+    ./lib64/pkgconfig:
+      - PKG_CONFIG_PATH
+    ./share/pkgconfig:
+      - PKG_CONFIG_PATH
+    ./:
+      - CMAKE_PREFIX_PATH
+
+  # These are configurations for the module set named "default"
+  default:
+    # Where to install modules
+    roots:
+      lmod: /uufs/chpc.utah.edu/sys/modulefiles/spack     
+    enable:
+      - lmod
+    # Default configurations if lmod is enabled
+    lmod:
+      all:
+        autoload: direct
+        environment:
+          set:
+            '{name}_ROOT': '{prefix}'
+      hash_length: 0
+      exclude_implicits: true
+      include:
+        - intel-mpi
+        - intel-oneapi-mpi
+        - mpich
+        - openmpi
+        - mvapich2
+        - libtool
+        - netcdf-c
+        - netcdf-fortran
+        - parallel-netcdf
+        - hdf5
+        - llvm
+        - python
+        - amber
+        - intel-mkl
+        - intel-oneapi-mkl
+        - intel-oneapi-compilers
+        - kim-api
+        - plumed
+        - boost
+        - zlib
+        - py-numpy
+        - py-matplotlib
+        - py-scipy
+        - py-ipython
+        - py-notebook
+        - py-cython
+        - py-pytest
+        - py-ipykernel
+        - py-pip
+        - py-mpi4py
+        - py-imageio
+        - py-pillow
+        - py-pooch
+        - py-scooby
+        - py-fastrlock
+        - vtk
+        - yaml-cpp
+        - cantera
+        - cantera-pokitt
+        - fmt
+        - sundials
+        - paraview
+        - scons
+        - gdal
+        - voropp
+        - cuda
+        - cudnn
+        - cutensor
+        - nccl
+        - ffmpeg
+        - scotch
+        - mumps
+        - openblas
+        - netlib-scalapack
+        - intel-oneapi-tbb
+        - gflags
+        - eigen
+        - meson
+        - ninja
+        - hypre
+        - metis
+        - parmetis
+        - superlu-dist
+        - gcc
+        - py-petsc4py
+        - petsc
+        - openjdk
+        - hmmer
+        - perl-xml-simple
+        - trf
+        - py-cffi
+        - py-fenics-basix
+        - py-fenics-ffcx
+        - py-fenics-ufl
+        - fenics-basix
+        - fenics-dolfinx
+        - htslib
+        - perl
+        - fftw
+      hierarchy:
+        - mpi
+      projections:
+        all: '{architecture}/{name}/{version}'
+        ^mpi^cuda: 'MPI/{architecture}/{compiler.name}/{compiler.version}/{^mpi.name}/{^mpi.version}/{name}/{version}-gpu'
+        ^mpi: 'MPI/{architecture}/{compiler.name}/{compiler.version}/{^mpi.name}/{^mpi.version}/{name}/{version}'
+        ^cuda: '{architecture}/{name}/{version}-gpu'
+      core_compilers:
+        - 'gcc@4.8.5'
+        - 'gcc@8.5.0'
+      ^python:
+        autoload: 'direct'
+      # Set additional environment variables
+      intel:
+        environment:
+          set:
+            INTEL_LICENSE_FILE: '28519@ls1.chpc.utah.edu,28519@ls2.chpc.utah.edu,28519@ls3.chpc.utah.edu'
+      matlab:
+        environment:
+          set:
+            MLM_LICENSE_FILE: '27000@ls1.chpc.utah.edu,27000@ls2.chpc.utah.edu,27000@ls3.chpc.utah.edu'
+      pgi:
+        environment:
+          set:
+            PGROUPD_LICENSE_FILE: '27003@ls1.chpc.utah.edu,27003@ls2.chpc.utah.edu,27003@ls3.chpc.utah.edu'
+      quantum-espresso:
+        environment:
+          set:
+            QE_PSEUDO: '/uufs/chpc.utah.edu/sys/installdir/qe/6.1/pseudo'
+      intel-mkl:
+        suffixes:
+          'threads=openmp': omp
+      gromacs:
+        environment:
+          set:
+            GMXLDLIB: '{prefix}/lib64'
+            GMXBIN: '{prefix}/bin'
+            GMXMAN: '{prefix}/share/man'
+            GMXPREFIX: '{prefix}'
+            GMXDATA: '{prefix}/share/gromacs'
+            GMXTOOLCHAINDIR: '{prefix}/share/cmake'
+            '{name}_DIR': '{prefix}'
