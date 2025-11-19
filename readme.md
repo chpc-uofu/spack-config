@@ -35,7 +35,7 @@
   * [Plan:](#plan-)
   * [Tidbits](#tidbits)
   * [Update instructions](#update-instructions)
-  * [Updating/fixing Spack package](#updating-fixing-spack-package)
+  * [Updating or fixing Spack package](#updating-or-fixing-spack-package)
   * [Spack 1 changes](#spack-1-changes)
 
 # Spack package manager at CHPC
@@ -924,7 +924,7 @@ spack repo add /uufs/chpc.utah.edu/sys/spack/v019/repos/modified
 ```
 2. The Spack database in `/uufs/chpc.utah.edu/sys/spack/.spack-db` points to repositories (also called namespaces) which are incompatible in #1, causing further errors. The workaround is to move away the old .spack-db and create a new one, though this necessitates to re-build all the dependent packages.
 
-## Updating/fixing Spack package
+## Updating or fixing Spack package
 
 When you feel like the fix you did to a Spack package may benefit the whole community, submit it as a pull request.
 
